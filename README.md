@@ -59,6 +59,76 @@ Este projeto foi desenvolvido por uma equipe multidisciplinar, garantindo a impl
 
 ## Como Configurar e Rodar o Projeto
 
+### 🐳 Opção 1: Usando Docker (Recomendado para Avaliação)
+
+**Esta é a forma mais rápida e fácil de testar o sistema, pois não requer configuração manual do ambiente.**
+
+#### Pré-requisitos
+- Docker
+- Docker Compose
+
+#### Passos para Inicialização
+
+1.  **Clonar o Repositório:**
+    ```bash
+    git clone https://github.com/LuizGustavoVJ/Teste-Livro.git
+    cd Teste-Livro
+    ```
+
+2.  **Iniciar o Ambiente Docker:**
+    ```bash
+    ./docker-start.sh
+    ```
+    
+    Ou manualmente:
+    ```bash
+    docker-compose up --build -d
+    ```
+
+3.  **Aguardar a Inicialização:**
+    O script aguardará automaticamente todos os serviços ficarem prontos (aproximadamente 30-60 segundos).
+
+4.  **Acessar o Sistema:**
+    - **Aplicação:** http://localhost
+    - **Interface de E-mails (Mailhog):** http://localhost:8025
+    - **PHPMyAdmin:** http://localhost:8080
+    - **Redis:** localhost:6379
+    - **MySQL:** localhost:3306
+
+#### Serviços Incluídos no Docker
+
+- **Aplicação Laravel** (porta 80)
+- **MySQL 8.0** (porta 3306) - Banco de dados principal
+- **Redis** (porta 6379) - Cache e filas
+- **Mailhog** (porta 8025) - Captura e visualização de e-mails
+- **PHPMyAdmin** (porta 8080) - Interface web para MySQL
+- **Queue Worker** - Processamento de filas em background
+- **Nginx** - Servidor web
+
+#### Comandos Úteis Docker
+
+```bash
+# Parar o ambiente
+docker-compose down
+
+# Ver logs em tempo real
+docker-compose logs -f
+
+# Reiniciar serviços
+docker-compose restart
+
+# Executar comandos Laravel
+docker-compose exec app php artisan [comando]
+
+# Acessar o container da aplicação
+docker-compose exec app bash
+
+# Limpar cache
+docker-compose exec app php artisan cache:clear
+```
+
+### 💻 Opção 2: Instalação Manual (Para Desenvolvimento)
+
 Siga os passos abaixo para configurar e rodar o projeto em seu ambiente local:
 
 1.  **Clonar o Repositório:**
@@ -81,11 +151,11 @@ Siga os passos abaixo para configurar e rodar o projeto em seu ambiente local:
     Edite o arquivo `.env` para configurar o banco de dados. Para desenvolvimento, você pode usar SQLite:
     ```dotenv
     DB_CONNECTION=sqlite
-    DB_DATABASE=/home/ubuntu/Teste-Livro/database/database.sqlite
+    DB_DATABASE=/caminho/para/Teste-Livro/database/database.sqlite
     ```
     *Certifique-se de que o caminho para `database.sqlite` esteja correto e que o arquivo exista ou seja criado.* Se preferir MySQL, configure as credenciais apropriadamente.
 
-4.  **Configurar Redis (Opcional, mas recomendado):
+4.  **Configurar Redis (Opcional, mas recomendado):**
     Certifique-se de ter o Redis instalado e em execução em sua máquina. No `.env`, configure:
     ```dotenv
     REDIS_HOST=127.0.0.1
@@ -121,12 +191,32 @@ Siga os passos abaixo para configurar e rodar o projeto em seu ambiente local:
     ```
     O sistema estará acessível em `http://127.0.0.1:8000` (ou a porta indicada).
 
-8.  **Iniciar o Worker de Fila (para e-mails e outras tarefas assíncronas):
+8.  **Iniciar o Worker de Fila (para e-mails e outras tarefas assíncronas):**
     ```bash
     php artisan queue:work
     ```
 
 ## Como Testar o Projeto
+
+### 🐳 Testando com Docker
+
+Se você está usando o ambiente Docker, os testes podem ser executados dentro do container:
+
+```bash
+# Executar todos os testes
+docker-compose exec app php artisan test
+
+# Executar apenas testes unitários
+docker-compose exec app php artisan test --testsuite=Unit
+
+# Executar apenas testes de integração
+docker-compose exec app php artisan test --testsuite=Feature
+
+# Executar testes com cobertura de código
+docker-compose exec app php artisan test --coverage
+```
+
+### 💻 Testando com Instalação Manual
 
 O projeto possui uma suíte de testes abrangente, incluindo testes unitários e de integração. Para executá-los, siga os passos:
 
@@ -147,7 +237,7 @@ O projeto possui uma suíte de testes abrangente, incluindo testes unitários e 
     php artisan test --testsuite=Feature
     ```
 
-5.  **Rodar Testes com Cobertura de Código (requer Xdebug):
+5.  **Rodar Testes com Cobertura de Código (requer Xdebug):**
     ```bash
     php artisan test --coverage
     ```
