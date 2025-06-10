@@ -22,8 +22,8 @@ use App\Http\Controllers\SubjectWebController;
 */
 
 Route::get('/', function () {
-    return redirect()->route('home');
-});
+    return view('welcome');
+})->name('pagina-inicial');
 
 
 Auth::routes();
