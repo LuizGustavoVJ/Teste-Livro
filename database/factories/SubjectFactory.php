@@ -16,8 +16,32 @@ class SubjectFactory extends Factory
      */
     public function definition(): array
     {
+        $subjects = [
+            'Ficção Científica',
+            'Romance',
+            'Mistério',
+            'Fantasia',
+            'Biografia',
+            'História',
+            'Ciência',
+            'Tecnologia',
+            'Filosofia',
+            'Arte',
+            'Culinária',
+            'Viagem',
+            'Autoajuda',
+            'Negócios',
+            'Educação',
+            'Saúde',
+            'Esportes',
+            'Política',
+            'Religião',
+            'Psicologia'
+        ];
+
         return [
-            //
+            'description' => $this->faker->unique()->randomElement($subjects),
         ];
     }
 }
+
