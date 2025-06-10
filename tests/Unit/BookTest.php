@@ -8,6 +8,8 @@ use App\Models\Author;
 use App\Models\Subject;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase as BaseTestCase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class BookTest extends BaseTestCase
 {
@@ -16,29 +18,29 @@ class BookTest extends BaseTestCase
     /**
      * Testa se um livro pode ser criado com sucesso.
      */
-    public function test_book_can_be_created()
+    public function test_livro_pode_ser_criado_com_sucesso()
     {
-        $bookData = [
-            'title' => 'Harry Potter e a Pedra Filosofal',
-            'publication_year' => 1997,
-            'isbn' => '9788532511010',
-            'price' => 29.90
+        $dadosLivro = [
+            'title' => 'Dom Casmurro',
+            'publication_year' => 1899,
+            'isbn' => '9788535902778',
+            'price' => 35.90
         ];
 
-        $book = Book::create($bookData);
+        $livro = Book::create($dadosLivro);
 
-        $this->assertInstanceOf(Book::class, $book);
-        $this->assertEquals('Harry Potter e a Pedra Filosofal', $book->title);
-        $this->assertEquals(1997, $book->publication_year);
-        $this->assertEquals('9788532511010', $book->isbn);
-        $this->assertEquals(29.90, $book->price);
-        $this->assertDatabaseHas('books', $bookData);
+        $this->assertInstanceOf(Book::class, $livro);
+        $this->assertEquals('Dom Casmurro', $livro->title);
+        $this->assertEquals(1899, $livro->publication_year);
+        $this->assertEquals('9788535902778', $livro->isbn);
+        $this->assertEquals(35.90, $livro->price);
+        $this->assertDatabaseHas('books', $dadosLivro);
     }
 
     /**
      * Testa se o título e preço são obrigatórios.
      */
-    public function test_book_title_and_price_are_required()
+    public function test_titulo_e_preco_sao_obrigatorios()
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
         
@@ -48,131 +50,217 @@ class BookTest extends BaseTestCase
     /**
      * Testa se um livro pode ter múltiplos autores.
      */
-    public function test_book_can_have_multiple_authors()
+    public function test_livro_pode_ter_multiplos_autores()
     {
-        $book = Book::factory()->create();
+        $livro = Book::factory()->create();
         
-        $author1 = Author::factory()->create();
-        $author2 = Author::factory()->create();
+        $autor1 = Author::factory()->create(['name' => 'Machado de Assis']);
+        $autor2 = Author::factory()->create(['name' => 'José de Alencar']);
         
-        $book->authors()->attach([$author1->id, $author2->id]);
+        $livro->authors()->attach([$autor1->id, $autor2->id]);
         
-        $this->assertCount(2, $book->authors);
-        $this->assertTrue($book->authors->contains($author1));
-        $this->assertTrue($book->authors->contains($author2));
+        $this->assertCount(2, $livro->authors);
+        $this->assertTrue($livro->authors->contains($autor1));
+        $this->assertTrue($livro->authors->contains($autor2));
     }
 
     /**
      * Testa se um livro pode ter múltiplos assuntos.
      */
-    public function test_book_can_have_multiple_subjects()
+    public function test_livro_pode_ter_multiplos_assuntos()
     {
-        $book = Book::factory()->create();
+        $livro = Book::factory()->create();
         
-        $subject1 = Subject::factory()->create();
-        $subject2 = Subject::factory()->create();
+        $assunto1 = Subject::factory()->create(['description' => 'Literatura Brasileira']);
+        $assunto2 = Subject::factory()->create(['description' => 'Romance']);
         
-        $book->subjects()->attach([$subject1->id, $subject2->id]);
+        $livro->subjects()->attach([$assunto1->id, $assunto2->id]);
         
-        $this->assertCount(2, $book->subjects);
-        $this->assertTrue($book->subjects->contains($subject1));
-        $this->assertTrue($book->subjects->contains($subject2));
+        $this->assertCount(2, $livro->subjects);
+        $this->assertTrue($livro->subjects->contains($assunto1));
+        $this->assertTrue($livro->subjects->contains($assunto2));
     }
 
     /**
      * Testa se o relacionamento com autores funciona corretamente.
      */
-    public function test_book_authors_relationship()
+    public function test_relacionamento_livro_autores_funciona()
     {
-        $book = Book::factory()->create();
-        $author = Author::factory()->create();
+        $livro = Book::factory()->create();
+        $autor = Author::factory()->create();
         
-        $book->authors()->attach($author->id);
+        $livro->authors()->attach($autor->id);
         
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $book->authors);
-        $this->assertEquals(1, $book->authors->count());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $livro->authors);
+        $this->assertEquals(1, $livro->authors->count());
     }
 
     /**
      * Testa se o relacionamento com assuntos funciona corretamente.
      */
-    public function test_book_subjects_relationship()
+    public function test_relacionamento_livro_assuntos_funciona()
     {
-        $book = Book::factory()->create();
-        $subject = Subject::factory()->create();
+        $livro = Book::factory()->create();
+        $assunto = Subject::factory()->create();
         
-        $book->subjects()->attach($subject->id);
+        $livro->subjects()->attach($assunto->id);
         
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $book->subjects);
-        $this->assertEquals(1, $book->subjects->count());
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $livro->subjects);
+        $this->assertEquals(1, $livro->subjects->count());
     }
 
     /**
      * Testa se um livro pode ser atualizado.
      */
-    public function test_book_can_be_updated()
+    public function test_livro_pode_ser_atualizado()
     {
-        $book = Book::factory()->create(['title' => 'Título Original', 'price' => 10.00]);
+        $livro = Book::factory()->create(['title' => 'Título Original', 'price' => 10.00]);
         
-        $book->update(['title' => 'Título Atualizado', 'price' => 15.50]);
+        $livro->update(['title' => 'Título Atualizado', 'price' => 15.50]);
         
-        $this->assertEquals('Título Atualizado', $book->fresh()->title);
-        $this->assertEquals(15.50, $book->fresh()->price);
-        $this->assertDatabaseHas('books', ['id' => $book->id, 'title' => 'Título Atualizado', 'price' => 15.50]);
+        $this->assertEquals('Título Atualizado', $livro->fresh()->title);
+        $this->assertEquals(15.50, $livro->fresh()->price);
+        $this->assertDatabaseHas('books', ['id' => $livro->id, 'title' => 'Título Atualizado', 'price' => 15.50]);
     }
 
     /**
      * Testa se um livro pode ser excluído.
      */
-    public function test_book_can_be_deleted()
+    public function test_livro_pode_ser_excluido()
     {
-        $book = Book::factory()->create();
-        $bookId = $book->id;
+        $livro = Book::factory()->create();
+        $livroId = $livro->id;
         
-        $book->delete();
+        $livro->delete();
         
-        $this->assertDatabaseMissing('books', ['id' => $bookId]);
+        $this->assertDatabaseMissing('books', ['id' => $livroId]);
     }
 
     /**
      * Testa se os timestamps são preenchidos automaticamente.
      */
-    public function test_book_has_timestamps()
+    public function test_livro_possui_timestamps()
     {
-        $book = Book::factory()->create();
+        $livro = Book::factory()->create();
         
-        $this->assertNotNull($book->created_at);
-        $this->assertNotNull($book->updated_at);
+        $this->assertNotNull($livro->created_at);
+        $this->assertNotNull($livro->updated_at);
     }
 
     /**
      * Testa se o preço deve ser um valor positivo.
      */
-    public function test_book_price_must_be_positive()
+    public function test_preco_livro_deve_ser_positivo()
     {
-        $book = Book::factory()->create(['price' => 25.99]);
+        $livro = Book::factory()->create(['price' => 25.99]);
         
-        $this->assertGreaterThan(0, $book->price);
+        $this->assertGreaterThan(0, $livro->price);
     }
 
     /**
      * Testa se o ano de publicação pode ser nulo.
      */
-    public function test_book_publication_year_can_be_null()
+    public function test_ano_publicacao_pode_ser_nulo()
     {
-        $book = Book::factory()->create(['publication_year' => null]);
+        $livro = Book::factory()->create(['publication_year' => null]);
         
-        $this->assertNull($book->publication_year);
+        $this->assertNull($livro->publication_year);
     }
 
     /**
      * Testa se o ISBN pode ser nulo.
      */
-    public function test_book_isbn_can_be_null()
+    public function test_isbn_pode_ser_nulo()
     {
-        $book = Book::factory()->create(['isbn' => null]);
+        $livro = Book::factory()->create(['isbn' => null]);
         
-        $this->assertNull($book->isbn);
+        $this->assertNull($livro->isbn);
+    }
+
+    /**
+     * Testa se a imagem de capa pode ser definida.
+     */
+    public function test_imagem_capa_pode_ser_definida()
+    {
+        $livro = Book::factory()->create(['cover_image_path' => 'capas/livro_teste.jpg']);
+        
+        $this->assertEquals('capas/livro_teste.jpg', $livro->cover_image_path);
+        $this->assertNotNull($livro->cover_image_path);
+    }
+
+    /**
+     * Testa se a imagem de capa pode ser nula.
+     */
+    public function test_imagem_capa_pode_ser_nula()
+    {
+        $livro = Book::factory()->create(['cover_image_path' => null]);
+        
+        $this->assertNull($livro->cover_image_path);
+    }
+
+    /**
+     * Testa se o método para obter URL da capa funciona.
+     */
+    public function test_metodo_obter_url_capa_funciona()
+    {
+        $livro = Book::factory()->create(['cover_image_path' => 'capas/teste.jpg']);
+        
+        $urlEsperada = asset('storage/capas/teste.jpg');
+        $this->assertEquals($urlEsperada, $livro->obterUrlCapa());
+    }
+
+    /**
+     * Testa se o método para obter URL da capa retorna null quando não há imagem.
+     */
+    public function test_metodo_obter_url_capa_retorna_null_sem_imagem()
+    {
+        $livro = Book::factory()->create(['cover_image_path' => null]);
+        
+        $this->assertNull($livro->obterUrlCapa());
+    }
+
+    /**
+     * Testa se o livro pode ser criado com dados completos.
+     */
+    public function test_livro_pode_ser_criado_com_dados_completos()
+    {
+        $dadosCompletos = [
+            'title' => 'O Cortiço',
+            'publication_year' => 1890,
+            'isbn' => '9788535902785',
+            'price' => 42.50,
+            'cover_image_path' => 'capas/o_cortico.jpg'
+        ];
+
+        $livro = Book::create($dadosCompletos);
+
+        $this->assertInstanceOf(Book::class, $livro);
+        foreach ($dadosCompletos as $campo => $valor) {
+            $this->assertEquals($valor, $livro->$campo);
+        }
+        $this->assertDatabaseHas('books', $dadosCompletos);
+    }
+
+    /**
+     * Testa se a validação de preço negativo falha.
+     */
+    public function test_validacao_preco_negativo_falha()
+    {
+        $this->expectException(\Exception::class);
+        
+        Book::factory()->create(['price' => -10.00]);
+    }
+
+    /**
+     * Testa se o ano de publicação futuro é inválido.
+     */
+    public function test_ano_publicacao_futuro_invalido()
+    {
+        $anoFuturo = date('Y') + 1;
+        
+        $this->expectException(\Exception::class);
+        
+        Book::factory()->create(['publication_year' => $anoFuturo]);
     }
 }
 
