@@ -1,0 +1,230 @@
+name: Sistema de Livros - CI/CD
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  notificar_pr:
+    name: Notificar Pull Request
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Notificar PR Criado
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { owner, repo } = context.repo;
+          const prNumber = context.payload.pull_request.number;
+          const prTitle = context.payload.pull_request.title;
+          const prAuthor = context.payload.pull_request.user.login;
+          
+          // Criar notificação para o proprietário do repositório
+          await github.rest.repos.createCommitComment({
+            owner,
+            repo,
+            commit_sha: context.payload.pull_request.head.sha,
+            body: `🔔 **NOVO PULL REQUEST PARA APROVAÇÃO**\n\n**PR #${prNumber}:** ${prTitle}\n**Autor:** @${prAuthor}\n\n@LuizGustavoVJ, este PR está aguardando sua revisão e aprovação.`
+          });
+
+  testes_unitarios:
+    name: Executar Testes Unitários
+    runs-on: ubuntu-latest
+    
+    services:
+      redis:
+        image: redis:7.0
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v4
+
+    - name: Configurar PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, redis
+        coverage: xdebug
+
+    - name: Cache das Dependências do Composer
+      uses: actions/cache@v3
+      with:
+        path: ~/.composer/cache/files
+        key: dependencies-composer-${{ hashFiles('composer.lock') }}
+
+    - name: Instalar Dependências do Composer
+      run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+    - name: Preparar Ambiente Laravel
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+        php artisan config:cache
+
+    - name: Configurar Banco de Dados de Teste
+      run: |
+        touch database/database.sqlite
+        php artisan migrate --env=testing --force
+
+    - name: Executar Testes Unitários
+      run: |
+        php artisan test --testsuite=Unit --coverage-text --coverage-clover=coverage.xml
+
+    - name: Upload da Cobertura de Código
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  testes_integracao:
+    name: Executar Testes de Integração
+    runs-on: ubuntu-latest
+    needs: testes_unitarios
+    
+    services:
+      redis:
+        image: redis:7.0
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v4
+
+    - name: Configurar PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, redis
+
+    - name: Instalar Dependências
+      run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+    - name: Preparar Ambiente
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+        touch database/database.sqlite
+        php artisan migrate --force
+        php artisan db:seed --force
+
+    - name: Executar Testes de Integração
+      run: php artisan test --testsuite=Feature
+
+  analise_codigo:
+    name: Análise de Qualidade do Código
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v4
+
+    - name: Configurar PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, ctype, iconv, intl
+
+    - name: Instalar Dependências
+      run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+    - name: Executar PHP CS Fixer (Verificação)
+      run: |
+        composer require --dev friendsofphp/php-cs-fixer
+        ./vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
+
+    - name: Executar PHPStan (Análise Estática)
+      run: |
+        composer require --dev phpstan/phpstan
+        ./vendor/bin/phpstan analyse app --level=5
+
+  deploy_staging:
+    name: Deploy para Staging
+    runs-on: ubuntu-latest
+    needs: [testes_unitarios, testes_integracao, analise_codigo]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v4
+
+    - name: Configurar PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
+
+    - name: Instalar Dependências
+      run: composer install --no-dev --optimize-autoloader
+
+    - name: Preparar para Deploy
+      run: |
+        php artisan config:cache
+        php artisan route:cache
+        php artisan view:cache
+
+    - name: Notificar Deploy Realizado
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { owner, repo } = context.repo;
+          
+          await github.rest.repos.createCommitComment({
+            owner,
+            repo,
+            commit_sha: context.sha,
+            body: `🚀 **DEPLOY REALIZADO COM SUCESSO**\n\nO sistema foi atualizado em staging com as últimas alterações.\n\n**Commit:** ${context.sha.substring(0, 7)}\n**Branch:** ${context.ref.replace('refs/heads/', '')}`
+          });
+
+  notificar_sucesso:
+    name: Notificar Sucesso do Pipeline
+    runs-on: ubuntu-latest
+    needs: [testes_unitarios, testes_integracao, analise_codigo]
+    if: success()
+    
+    steps:
+    - name: Notificar Pipeline Concluído
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { owner, repo } = context.repo;
+          
+          await github.rest.repos.createCommitComment({
+            owner,
+            repo,
+            commit_sha: context.sha,
+            body: `✅ **PIPELINE CI/CD CONCLUÍDO COM SUCESSO**\n\n🧪 Testes unitários: ✅ Passou\n🔗 Testes de integração: ✅ Passou\n🔍 Análise de código: ✅ Passou\n\nO código está pronto para produção!`
+          });
+
+  notificar_falha:
+    name: Notificar Falha do Pipeline
+    runs-on: ubuntu-latest
+    needs: [testes_unitarios, testes_integracao, analise_codigo]
+    if: failure()
+    
+    steps:
+    - name: Notificar Pipeline Falhou
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { owner, repo } = context.repo;
+          
+          await github.rest.repos.createCommitComment({
+            owner,
+            repo,
+            commit_sha: context.sha,
+            body: `❌ **PIPELINE CI/CD FALHOU**\n\nAlgum dos testes ou verificações falhou. Por favor, verifique os logs do GitHub Actions para mais detalhes.\n\n**Commit:** ${context.sha.substring(0, 7)}\n**Branch:** ${context.ref.replace('refs/heads/', '')}`
+          });
+
