@@ -1,30 +1,197 @@
 version: '3.8'
 
 services:
-#   mysql:
-#     image: 'mysql:8.0'
-#     environment:
-#       MYSQL_ROOT_PASSWORD: 'password'
-#       MYSQL_DATABASE: 'book_management_system'
-#     ports:
-#       - '3306:3306'
-#     volumes:
-#       - 'mysql_data:/var/lib/mysql'
-#     networks:
-#       - app-network
-
-  redis:
-    image: 'redis:latest'
-    ports:
-      - '6379:6379'
+  # Aplicação Laravel
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: teste-livro-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./storage/app/public:/var/www/html/public/storage
+    environment:
+      - APP_NAME=Teste-Livro
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://localhost:8000
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=teste_livro
+      - DB_USERNAME=root
+      - DB_PASSWORD=password
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=null
+      - REDIS_PORT=6379
+      - CACHE_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      - SESSION_DRIVER=redis
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=mailhog
+      - MAIL_PORT=1025
+      - MAIL_USERNAME=null
+      - MAIL_PASSWORD=null
+      - MAIL_ENCRYPTION=null
+      - MAIL_FROM_ADDRESS=noreply@teste-livro.com
+      - MAIL_FROM_NAME=Sistema-Teste-Livro
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
     networks:
-      - app-network
+      - teste-livro-network
+    command: >
+      sh -c "
+        composer install --no-dev --optimize-autoloader &&
+        php artisan key:generate --force &&
+        php artisan config:cache &&
+        php artisan route:cache &&
+        php artisan view:cache &&
+        php artisan migrate --force &&
+        php artisan db:seed --force &&
+        php artisan storage:link &&
+        php artisan queue:work --daemon &
+        php artisan serve --host=0.0.0.0 --port=8000
+      "
+
+  # Servidor Web Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: teste-livro-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - teste-livro-network
+
+  # Banco de Dados MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: teste-livro-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: teste_livro
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - teste-livro-network
+
+  # Redis para Cache e Filas
+  redis:
+    image: redis:7-alpine
+    container_name: teste-livro-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - teste-livro-network
+
+  # Mailhog para Captura de E-mails
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: teste-livro-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Interface Web
+    networks:
+      - teste-livro-network
+
+  # Worker para Filas (separado para melhor controle)
+  queue-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: teste-livro-queue-worker
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    environment:
+      - APP_NAME=Teste-Livro
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=teste_livro
+      - DB_USERNAME=root
+      - DB_PASSWORD=password
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=null
+      - REDIS_PORT=6379
+      - CACHE_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=mailhog
+      - MAIL_PORT=1025
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      app:
+        condition: service_started
+    networks:
+      - teste-livro-network
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+
+  # PHPMyAdmin para Gerenciamento do Banco
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: teste-livro-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "8080:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - teste-livro-network
 
 volumes:
   mysql_data:
+    driver: local
+  redis_data:
+    driver: local
 
 networks:
-  app-network:
+  teste-livro-network:
     driver: bridge
-
 

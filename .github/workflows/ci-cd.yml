@@ -1,40 +1,91 @@
-name: Sistema de Livros - CI/CD
+name: Sistema de Livros - CI/CD Completo
 
 on:
   push:
     branches: [ master, main ]
   pull_request:
     branches: [ master, main ]
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
+env:
+  PHP_VERSION: '8.1'
+  NODE_VERSION: '18'
+
 jobs:
-  notificar_pr:
-    name: Notificar Pull Request
+  notificar_pr_criado:
+    name: Notificar Novo Pull Request
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
     
     steps:
-    - name: Notificar PR Criado
+    - name: Notificar PR Criado para Aprovação
       uses: actions/github-script@v6
       with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const { owner, repo } = context.repo;
           const prNumber = context.payload.pull_request.number;
           const prTitle = context.payload.pull_request.title;
           const prAuthor = context.payload.pull_request.user.login;
+          const prUrl = context.payload.pull_request.html_url;
           
-          // Criar issue para notificar o proprietário
+          // Criar issue para notificação (aparece no app móvel)
           await github.rest.issues.create({
             owner,
             repo,
             title: `🔔 PR #${prNumber} aguardando aprovação`,
-            body: `**NOVO PULL REQUEST PARA APROVAÇÃO**\n\n**PR #${prNumber}:** ${prTitle}\n**Autor:** @${prAuthor}\n**Link:** https://github.com/${owner}/${repo}/pull/${prNumber}\n\n@LuizGustavoVJ, este PR está aguardando sua revisão e aprovação.\n\n**Ações necessárias:**\n- [ ] Revisar código\n- [ ] Testar funcionalidades\n- [ ] Aprovar ou solicitar mudanças`,
-            labels: ['pr-review', 'awaiting-approval']
+            body: `**NOVO PULL REQUEST PARA APROVAÇÃO**\n\n**Título:** ${prTitle}\n**Autor:** @${prAuthor}\n**Link:** ${prUrl}\n\n@LuizGustavoVJ, este PR está aguardando sua revisão e aprovação.\n\n**Ações necessárias:**\n- [ ] Revisar código\n- [ ] Testar funcionalidades\n- [ ] Aprovar ou solicitar alterações\n\n*Esta issue será fechada automaticamente quando o PR for mergeado.*`,
+            labels: ['pr-review-needed', 'high-priority'],
+            assignees: ['LuizGustavoVJ']
+          });
+          
+          // Comentário no PR
+          await github.rest.issues.createComment({
+            owner,
+            repo,
+            issue_number: prNumber,
+            body: `🔔 **Notificação enviada para @LuizGustavoVJ**\n\nUma issue foi criada para notificar sobre este PR no aplicativo móvel do GitHub.`
           });
 
-  testes_unitarios:
-    name: Executar Testes Unitários
+  validacao_inicial:
+    name: Validação Inicial do Código
     runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v4
+
+    - name: Configurar PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ env.PHP_VERSION }}
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, redis, gd
+        coverage: xdebug
+
+    - name: Validar Sintaxe PHP
+      run: find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
+
+    - name: Cache das Dependências do Composer
+      uses: actions/cache@v3
+      with:
+        path: ~/.composer/cache/files
+        key: dependencies-composer-${{ hashFiles('composer.lock') }}
+
+    - name: Instalar Dependências do Composer
+      run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+    - name: Verificar Configuração Laravel
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+        php artisan config:clear
+        php artisan config:cache
+
+  testes_unitarios:
+    name: Testes Unitários
+    runs-on: ubuntu-latest
+    needs: validacao_inicial
     
     services:
       redis:
@@ -54,34 +105,26 @@ jobs:
     - name: Configurar PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.1'
+        php-version: ${{ env.PHP_VERSION }}
         extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, redis, gd
         coverage: xdebug
 
-    - name: Cache das Dependências do Composer
+    - name: Cache das Dependências
       uses: actions/cache@v3
       with:
         path: ~/.composer/cache/files
         key: dependencies-composer-${{ hashFiles('composer.lock') }}
 
-    - name: Instalar Dependências do Composer
+    - name: Instalar Dependências
       run: composer install --no-progress --prefer-dist --optimize-autoloader
 
-    - name: Preparar Ambiente Laravel
+    - name: Preparar Ambiente de Teste
       run: |
         cp .env.example .env
         sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
-        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=database\/database.sqlite/' .env
-        sed -i 's/REDIS_HOST=127.0.0.1/REDIS_HOST=localhost/' .env
-        sed -i 's/CACHE_DRIVER=file/CACHE_DRIVER=redis/' .env
-        sed -i 's/QUEUE_CONNECTION=sync/QUEUE_CONNECTION=redis/' .env
+        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=:memory:/' .env
         php artisan key:generate
-
-    - name: Configurar Banco de Dados de Teste
-      run: |
-        touch database/database.sqlite
-        php artisan migrate --force
-        php artisan db:seed --force
+        php artisan config:cache
 
     - name: Executar Testes Unitários
       run: |
@@ -89,16 +132,16 @@ jobs:
 
     - name: Upload da Cobertura de Código
       uses: codecov/codecov-action@v3
+      if: success()
       with:
         file: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
-      continue-on-error: true
 
   testes_integracao:
-    name: Executar Testes de Integração
+    name: Testes de Integração
     runs-on: ubuntu-latest
-    needs: testes_unitarios
+    needs: validacao_inicial
     
     services:
       redis:
@@ -113,7 +156,7 @@ jobs:
     - name: Configurar PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.1'
+        php-version: ${{ env.PHP_VERSION }}
         extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, redis, gd
 
     - name: Instalar Dependências
@@ -123,21 +166,18 @@ jobs:
       run: |
         cp .env.example .env
         sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
-        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=database\/database.sqlite/' .env
-        sed -i 's/REDIS_HOST=127.0.0.1/REDIS_HOST=localhost/' .env
-        sed -i 's/CACHE_DRIVER=file/CACHE_DRIVER=redis/' .env
-        sed -i 's/QUEUE_CONNECTION=sync/QUEUE_CONNECTION=redis/' .env
+        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=:memory:/' .env
         php artisan key:generate
-        touch database/database.sqlite
         php artisan migrate --force
         php artisan db:seed --force
 
     - name: Executar Testes de Integração
       run: php artisan test --testsuite=Feature
 
-  analise_codigo:
-    name: Análise de Qualidade do Código
+  analise_qualidade:
+    name: Análise de Qualidade
     runs-on: ubuntu-latest
+    needs: validacao_inicial
     
     steps:
     - name: Checkout do Código
@@ -146,31 +186,54 @@ jobs:
     - name: Configurar PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.1'
+        php-version: ${{ env.PHP_VERSION }}
         extensions: mbstring, xml, ctype, iconv, intl
 
     - name: Instalar Dependências
       run: composer install --no-progress --prefer-dist --optimize-autoloader
 
-    - name: Verificar Sintaxe PHP
-      run: find app -name "*.php" -exec php -l {} \;
-
-    - name: Executar PHP CS Fixer (Verificação)
+    - name: Instalar Ferramentas de Análise
       run: |
         composer require --dev friendsofphp/php-cs-fixer
-        ./vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
-      continue-on-error: true
-
-    - name: Executar PHPStan (Análise Estática)
-      run: |
         composer require --dev phpstan/phpstan
-        ./vendor/bin/phpstan analyse app --level=3 --no-progress
-      continue-on-error: true
+        composer require --dev squizlabs/php_codesniffer
+
+    - name: Executar PHP CS Fixer
+      run: ./vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
+
+    - name: Executar PHP CodeSniffer
+      run: ./vendor/bin/phpcs --standard=PSR12 app/
+
+    - name: Executar PHPStan
+      run: ./vendor/bin/phpstan analyse app --level=5
+
+  testes_seguranca:
+    name: Testes de Segurança
+    runs-on: ubuntu-latest
+    needs: validacao_inicial
+    
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v4
+
+    - name: Configurar PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ env.PHP_VERSION }}
+        extensions: mbstring, xml, ctype, iconv, intl
+
+    - name: Instalar Dependências
+      run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+    - name: Verificar Vulnerabilidades de Segurança
+      run: |
+        composer audit
+        php artisan route:list --json | jq '.[] | select(.middleware | contains(["auth"]) | not) | .uri' || true
 
   deploy_staging:
     name: Deploy para Staging
     runs-on: ubuntu-latest
-    needs: [testes_unitarios, testes_integracao, analise_codigo]
+    needs: [testes_unitarios, testes_integracao, analise_qualidade, testes_seguranca]
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     
     steps:
@@ -180,16 +243,14 @@ jobs:
     - name: Configurar PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.1'
+        php-version: ${{ env.PHP_VERSION }}
         extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, redis, gd
 
-    - name: Instalar Dependências
+    - name: Instalar Dependências de Produção
       run: composer install --no-dev --optimize-autoloader
 
-    - name: Preparar para Deploy
+    - name: Otimizar para Produção
       run: |
-        cp .env.example .env
-        php artisan key:generate
         php artisan config:cache
         php artisan route:cache
         php artisan view:cache
@@ -200,18 +261,54 @@ jobs:
         script: |
           const { owner, repo } = context.repo;
           
-          await github.rest.issues.create({
+          await github.rest.repos.createCommitComment({
             owner,
             repo,
-            title: `🚀 Deploy realizado - ${context.sha.substring(0, 7)}`,
-            body: `**DEPLOY REALIZADO COM SUCESSO**\n\nO sistema foi atualizado em staging com as últimas alterações.\n\n**Commit:** ${context.sha.substring(0, 7)}\n**Branch:** ${context.ref.replace('refs/heads/', '')}\n**Timestamp:** ${new Date().toISOString()}\n\n@LuizGustavoVJ, o sistema está atualizado e pronto para testes.`,
-            labels: ['deployment', 'staging']
+            commit_sha: context.sha,
+            body: `🚀 **DEPLOY PARA STAGING REALIZADO**\n\n✅ Sistema atualizado com sucesso\n📦 Commit: ${context.sha.substring(0, 7)}\n🌿 Branch: ${context.ref.replace('refs/heads/', '')}\n⏰ Horário: ${new Date().toLocaleString('pt-BR')}\n\n**Próximos passos:**\n- Testar funcionalidades em staging\n- Validar performance\n- Aprovar para produção`
           });
 
-  notificar_sucesso:
-    name: Notificar Sucesso do Pipeline
+  notificar_pr_aprovado:
+    name: Notificar PR Aprovado
     runs-on: ubuntu-latest
-    needs: [testes_unitarios, testes_integracao, analise_codigo]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Fechar Issues de Notificação de PR
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { owner, repo } = context.repo;
+          
+          // Buscar issues abertas com label 'pr-review-needed'
+          const issues = await github.rest.issues.listForRepo({
+            owner,
+            repo,
+            state: 'open',
+            labels: 'pr-review-needed'
+          });
+          
+          // Fechar issues relacionadas a PRs
+          for (const issue of issues.data) {
+            await github.rest.issues.update({
+              owner,
+              repo,
+              issue_number: issue.number,
+              state: 'closed'
+            });
+            
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: issue.number,
+              body: `✅ **PR APROVADO E MERGEADO**\n\nO Pull Request foi aprovado e as alterações foram integradas à branch master.\n\n*Issue fechada automaticamente.*`
+            });
+          }
+
+  notificar_sucesso:
+    name: Notificar Sucesso Completo
+    runs-on: ubuntu-latest
+    needs: [testes_unitarios, testes_integracao, analise_qualidade, testes_seguranca]
     if: success()
     
     steps:
@@ -225,27 +322,36 @@ jobs:
             owner,
             repo,
             commit_sha: context.sha,
-            body: `✅ **PIPELINE CI/CD CONCLUÍDO COM SUCESSO**\n\n🧪 Testes unitários: ✅ Passou\n🔗 Testes de integração: ✅ Passou\n🔍 Análise de código: ✅ Passou\n\nO código está pronto para produção!\n\n**Estatísticas:**\n- Commit: ${context.sha.substring(0, 7)}\n- Branch: ${context.ref.replace('refs/heads/', '')}\n- Timestamp: ${new Date().toISOString()}`
+            body: `✅ **PIPELINE CI/CD CONCLUÍDO COM SUCESSO**\n\n🧪 **Testes unitários:** ✅ Passou\n🔗 **Testes de integração:** ✅ Passou\n🔍 **Análise de qualidade:** ✅ Passou\n🛡️ **Testes de segurança:** ✅ Passou\n\n📊 **Estatísticas:**\n- Commit: ${context.sha.substring(0, 7)}\n- Branch: ${context.ref.replace('refs/heads/', '')}\n- Horário: ${new Date().toLocaleString('pt-BR')}\n\n🚀 **O código está pronto para produção!**`
           });
 
   notificar_falha:
     name: Notificar Falha do Pipeline
     runs-on: ubuntu-latest
-    needs: [testes_unitarios, testes_integracao, analise_codigo]
+    needs: [testes_unitarios, testes_integracao, analise_qualidade, testes_seguranca]
     if: failure()
     
     steps:
-    - name: Notificar Pipeline Falhou
+    - name: Criar Issue para Falha
       uses: actions/github-script@v6
       with:
         script: |
           const { owner, repo } = context.repo;
           
+          // Criar issue para notificar falha
           await github.rest.issues.create({
             owner,
             repo,
-            title: `❌ Pipeline falhou - ${context.sha.substring(0, 7)}`,
-            body: `**PIPELINE CI/CD FALHOU**\n\nAlgum dos testes ou verificações falhou. Por favor, verifique os logs do GitHub Actions para mais detalhes.\n\n**Commit:** ${context.sha.substring(0, 7)}\n**Branch:** ${context.ref.replace('refs/heads/', '')}\n**Timestamp:** ${new Date().toISOString()}\n\n**Link para logs:** https://github.com/${owner}/${repo}/actions\n\n@LuizGustavoVJ, ação necessária para corrigir os problemas.`,
-            labels: ['ci-failure', 'bug']
+            title: `❌ Pipeline CI/CD falhou - ${context.sha.substring(0, 7)}`,
+            body: `**PIPELINE CI/CD FALHOU**\n\n❌ Algum dos testes ou verificações falhou.\n\n**Detalhes:**\n- Commit: ${context.sha.substring(0, 7)}\n- Branch: ${context.ref.replace('refs/heads/', '')}\n- Workflow: ${context.workflow}\n- Run ID: ${context.runId}\n\n**Ações necessárias:**\n- [ ] Verificar logs do GitHub Actions\n- [ ] Corrigir problemas identificados\n- [ ] Fazer novo commit com correções\n\n**Link para logs:** https://github.com/${owner}/${repo}/actions/runs/${context.runId}`,
+            labels: ['bug', 'ci-cd-failure', 'high-priority'],
+            assignees: ['LuizGustavoVJ']
+          });
+          
+          await github.rest.repos.createCommitComment({
+            owner,
+            repo,
+            commit_sha: context.sha,
+            body: `❌ **PIPELINE CI/CD FALHOU**\n\nUma issue foi criada para rastrear esta falha. Verifique os logs para mais detalhes.\n\n**Run ID:** ${context.runId}`
           });
 
