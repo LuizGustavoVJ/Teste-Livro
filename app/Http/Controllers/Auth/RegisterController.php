@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use App\Events\UserRegistered;
 
 class RegisterController extends Controller
 {
@@ -32,7 +33,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = ";
 
     protected $uploadService;
 
@@ -43,7 +44,7 @@ class RegisterController extends Controller
      */
     public function __construct(UploadService $uploadService)
     {
-        $this->middleware('guest');
+        $this->middleware("guest");
         $this->uploadService = $uploadService;
     }
 
@@ -56,10 +57,10 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'imagem' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,bmp', 'max:5120'], // 5MB
+            "name" => ["required", "string", "max:255"],
+            "email" => ["required", "string", "email", "max:255", "unique:users"],
+            "password" => ["required", "string", "min:8", "confirmed"],
+            "imagem" => ["nullable", "image", "mimes:jpeg,png,jpg,gif,bmp", "max:5120"], // 5MB
         ]);
     }
 
@@ -71,38 +72,41 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        Log::info('Iniciando criação de usuário', ['data' => $data]);
+        Log::info("Iniciando criação de usuário", ["data" => $data]);
 
         $upload = null;
 
-        if (request()->hasFile('imagem')) {
-            Log::info('Arquivo de imagem recebido', [
-                'mime_type' => request()->file('imagem')->getMimeType(),
-                'size' => request()->file('imagem')->getSize(),
-                'original_name' => request()->file('imagem')->getClientOriginalName(),
+        if (request()->hasFile("imagem")) {
+            Log::info("Arquivo de imagem recebido", [
+                "mime_type" => request()->file("imagem")->getMimeType(),
+                "size" => request()->file("imagem")->getSize(),
+                "original_name" => request()->file("imagem")->getClientOriginalName(),
             ]);
 
             try {
-                $upload = $this->uploadService->uploadArquivo(request()->file('imagem'));
-                Log::info('Upload concluído com sucesso', ['upload' => $upload]);
+                $upload = $this->uploadService->uploadArquivo(request()->file("imagem"));
+                Log::info("Upload concluído com sucesso", ["upload" => $upload]);
             } catch (\Exception $e) {
-                Log::error('Erro durante upload da imagem', ['erro' => $e->getMessage()]);
+                Log::error("Erro durante upload da imagem", ["erro" => $e->getMessage()]);
             }
         } else {
-            Log::warning('Nenhum arquivo de imagem enviado na requisição.');
+            Log::warning("Nenhum arquivo de imagem enviado na requisição.");
         }
 
         $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'arquivo_id' => $upload['id'] ?? null,
+            "name" => $data["name"],
+            "email" => $data["email"],
+            "password" => Hash::make($data["password"]),
+            "arquivo_id" => $upload["id"] ?? null,
         ]);
 
-        Log::info('Usuário criado com sucesso', ['user_id' => $user->id, 'arquivo_id' => $user->arquivo_id]);
+        Log::info("Usuário criado com sucesso", ["user_id" => $user->id, "arquivo_id" => $user->arquivo_id]);
 
-        Mail::to($user->email)->queue(new BoasVindasMail($user));
+        // Dispara o evento UserRegistered
+        event(new UserRegistered($user));
 
-        return $user->load('arquivo');
+        return $user->load("arquivo");
     }
 }
+
+
