@@ -8,16 +8,23 @@ use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use App\Services\UploadService;
 
 class BookWebController extends Controller
 {
+    protected $servicoUpload;
+
+    public function __construct(UploadService $servicoUpload)
+    {
+        $this->servicoUpload = $servicoUpload;
+    }
+
     /**
      * Exibe uma listagem dos livros.
      */
     public function index()
     {
-        $livros = Livro::with(["autores", "assuntos"])->paginate(10);
+        $livros = Book::with(["authors", "subjects"])->paginate(10);
         return view("books.index", compact("livros"));
     }
 
@@ -26,8 +33,8 @@ class BookWebController extends Controller
      */
     public function create()
     {
-        $autores = Autor::all();
-        $assuntos = Assunto::all();
+        $autores = Author::all();
+        $assuntos = Subject::all();
         return view("books.create", compact("autores", "assuntos"));
     }
 
@@ -36,7 +43,7 @@ class BookWebController extends Controller
      */
     public function store(Request $request)
     {
-        $validador = Validador::make($request->all(), [
+        $validador = Validator::make($request->all(), [
             "titulo" => "required|string|max:255",
             "ano_publicacao" => "nullable|integer",
             "isbn" => "nullable|string|max:13",
@@ -59,19 +66,22 @@ class BookWebController extends Controller
 
             $caminhoImagem = null;
             if ($request->hasFile("imagem_capa")) {
-                $caminhoImagem = $request->file("imagem_capa")->store("capas_livros", "public");
+                $caminhoImagem = $this->servicoUpload->uploadArquivo($request->file("imagem_capa"), "capas_livros");
+                if (!$caminhoImagem) {
+                    throw new \Exception("Falha ao fazer upload da imagem de capa.");
+                }
             }
 
-            $livro = Livro::create([
-                "titulo" => $request->titulo,
-                "ano_publicacao" => $request->ano_publicacao,
+            $livro = Book::create([
+                "title" => $request->titulo,
+                "publication_year" => $request->ano_publicacao,
                 "isbn" => $request->isbn,
-                "preco" => $request->preco,
-                "caminho_imagem_capa" => $caminhoImagem,
+                "price" => $request->preco,
+                "cover_image_path" => $caminhoImagem,
             ]);
 
-            $livro->autores()->attach($request->autores);
-            $livro->assuntos()->attach($request->assuntos);
+            $livro->authors()->attach($request->autores);
+            $livro->subjects()->attach($request->assuntos);
 
             DB::commit();
 
@@ -80,7 +90,7 @@ class BookWebController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             if ($caminhoImagem) {
-                Storage::disk("public")->delete($caminhoImagem);
+                $this->servicoUpload->deletarArquivo($caminhoImagem);
             }
             return redirect()->back()
                 ->with("erro", "Erro ao criar livro: " . $e->getMessage())
@@ -91,29 +101,29 @@ class BookWebController extends Controller
     /**
      * Exibe o livro especificado.
      */
-    public function show(Livro $livro)
+    public function show(Book $livro)
     {
-        $livro->load(["autores", "assuntos"]);
+        $livro->load(["authors", "subjects"]);
         return view("books.show", compact("livro"));
     }
 
     /**
      * Mostra o formulário para editar o livro especificado.
      */
-    public function edit(Livro $livro)
+    public function edit(Book $livro)
     {
-        $autores = Autor::all();
-        $assuntos = Assunto::all();
-        $livro->load(["autores", "assuntos"]);
+        $autores = Author::all();
+        $assuntos = Subject::all();
+        $livro->load(["authors", "subjects"]);
         return view("books.edit", compact("livro", "autores", "assuntos"));
     }
 
     /**
      * Atualiza o livro especificado no armazenamento.
      */
-    public function update(Request $request, Livro $livro)
+    public function update(Request $request, Book $livro)
     {
-        $validador = Validador::make($request->all(), [
+        $validador = Validator::make($request->all(), [
             "titulo" => "required|string|max:255",
             "ano_publicacao" => "nullable|integer",
             "isbn" => "nullable|string|max:13",
@@ -134,24 +144,27 @@ class BookWebController extends Controller
         try {
             DB::beginTransaction();
 
-            $caminhoImagem = $livro->caminho_imagem_capa;
+            $caminhoImagem = $livro->cover_image_path;
             if ($request->hasFile("imagem_capa")) {
                 if ($caminhoImagem) {
-                    Storage::disk("public")->delete($caminhoImagem);
+                    $this->servicoUpload->deletarArquivo($caminhoImagem);
                 }
-                $caminhoImagem = $request->file("imagem_capa")->store("capas_livros", "public");
+                $caminhoImagem = $this->servicoUpload->uploadArquivo($request->file("imagem_capa"), "capas_livros");
+                if (!$caminhoImagem) {
+                    throw new \Exception("Falha ao fazer upload da nova imagem de capa.");
+                }
             }
 
             $livro->update([
-                "titulo" => $request->titulo,
-                "ano_publicacao" => $request->ano_publicacao,
+                "title" => $request->titulo,
+                "publication_year" => $request->ano_publicacao,
                 "isbn" => $request->isbn,
-                "preco" => $request->preco,
-                "caminho_imagem_capa" => $caminhoImagem,
+                "price" => $request->preco,
+                "cover_image_path" => $caminhoImagem,
             ]);
 
-            $livro->autores()->sync($request->autores);
-            $livro->assuntos()->sync($request->assuntos);
+            $livro->authors()->sync($request->autores);
+            $livro->subjects()->sync($request->assuntos);
 
             DB::commit();
 
@@ -168,11 +181,11 @@ class BookWebController extends Controller
     /**
      * Remove o livro especificado do armazenamento.
      */
-    public function destroy(Livro $livro)
+    public function destroy(Book $livro)
     {
         try {
-            if ($livro->caminho_imagem_capa) {
-                Storage::disk("public")->delete($livro->caminho_imagem_capa);
+            if ($livro->cover_image_path) {
+                $this->servicoUpload->deletarArquivo($livro->cover_image_path);
             }
             $livro->delete();
             return redirect()->route("books.index")
