@@ -8,157 +8,180 @@ use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class BookWebController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Exibe uma listagem dos livros.
      */
     public function index()
     {
-        $books = Book::with(['authors', 'subjects'])->paginate(10);
-        return view('books.index', compact('books'));
+        $livros = Livro::with(["autores", "assuntos"])->paginate(10);
+        return view("books.index", compact("livros"));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Mostra o formulário para criar um novo livro.
      */
     public function create()
     {
-        $authors = Author::all();
-        $subjects = Subject::all();
-        return view('books.create', compact('authors', 'subjects'));
+        $autores = Autor::all();
+        $assuntos = Assunto::all();
+        return view("books.create", compact("autores", "assuntos"));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Armazena um livro recém-criado no armazenamento.
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'publication_year' => 'nullable|integer',
-            'isbn' => 'nullable|string|max:13',
-            'price' => 'required|numeric|min:0',
-            'authors' => 'required|array|min:1',
-            'authors.*' => 'exists:authors,id',
-            'subjects' => 'required|array|min:1',
-            'subjects.*' => 'exists:subjects,id',
+        $validador = Validador::make($request->all(), [
+            "titulo" => "required|string|max:255",
+            "ano_publicacao" => "nullable|integer",
+            "isbn" => "nullable|string|max:13",
+            "preco" => "required|numeric|min:0",
+            "autores" => "required|array|min:1",
+            "autores.*" => "exists:authors,id",
+            "assuntos" => "required|array|min:1",
+            "assuntos.*" => "exists:subjects,id",
+            "imagem_capa" => "nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
         ]);
 
-        if ($validator->fails()) {
+        if ($validador->fails()) {
             return redirect()->back()
-                ->withErrors($validator)
+                ->withErrors($validador)
                 ->withInput();
         }
 
         try {
             DB::beginTransaction();
 
-            $book = Book::create([
-                'title' => $request->title,
-                'publication_year' => $request->publication_year,
-                'isbn' => $request->isbn,
-                'price' => $request->price,
+            $caminhoImagem = null;
+            if ($request->hasFile("imagem_capa")) {
+                $caminhoImagem = $request->file("imagem_capa")->store("capas_livros", "public");
+            }
+
+            $livro = Livro::create([
+                "titulo" => $request->titulo,
+                "ano_publicacao" => $request->ano_publicacao,
+                "isbn" => $request->isbn,
+                "preco" => $request->preco,
+                "caminho_imagem_capa" => $caminhoImagem,
             ]);
 
-            $book->authors()->attach($request->authors);
-            $book->subjects()->attach($request->subjects);
+            $livro->autores()->attach($request->autores);
+            $livro->assuntos()->attach($request->assuntos);
 
             DB::commit();
 
-            return redirect()->route('books.index')
-                ->with('success', 'Livro criado com sucesso!');
+            return redirect()->route("books.index")
+                ->with("sucesso", "Livro criado com sucesso!");
         } catch (\Exception $e) {
             DB::rollBack();
-            
+            if ($caminhoImagem) {
+                Storage::disk("public")->delete($caminhoImagem);
+            }
             return redirect()->back()
-                ->with('error', 'Erro ao criar livro: ' . $e->getMessage())
+                ->with("erro", "Erro ao criar livro: " . $e->getMessage())
                 ->withInput();
         }
     }
 
     /**
-     * Display the specified resource.
+     * Exibe o livro especificado.
      */
-    public function show(Book $book)
+    public function show(Livro $livro)
     {
-        $book->load(['authors', 'subjects']);
-        return view('books.show', compact('book'));
+        $livro->load(["autores", "assuntos"]);
+        return view("books.show", compact("livro"));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Mostra o formulário para editar o livro especificado.
      */
-    public function edit(Book $book)
+    public function edit(Livro $livro)
     {
-        $authors = Author::all();
-        $subjects = Subject::all();
-        $book->load(['authors', 'subjects']);
-        return view('books.edit', compact('book', 'authors', 'subjects'));
+        $autores = Autor::all();
+        $assuntos = Assunto::all();
+        $livro->load(["autores", "assuntos"]);
+        return view("books.edit", compact("livro", "autores", "assuntos"));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Atualiza o livro especificado no armazenamento.
      */
-    public function update(Request $request, Book $book)
+    public function update(Request $request, Livro $livro)
     {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'publication_year' => 'nullable|integer',
-            'isbn' => 'nullable|string|max:13',
-            'price' => 'required|numeric|min:0',
-            'authors' => 'required|array|min:1',
-            'authors.*' => 'exists:authors,id',
-            'subjects' => 'required|array|min:1',
-            'subjects.*' => 'exists:subjects,id',
+        $validador = Validador::make($request->all(), [
+            "titulo" => "required|string|max:255",
+            "ano_publicacao" => "nullable|integer",
+            "isbn" => "nullable|string|max:13",
+            "preco" => "required|numeric|min:0",
+            "autores" => "required|array|min:1",
+            "autores.*" => "exists:authors,id",
+            "assuntos" => "required|array|min:1",
+            "assuntos.*" => "exists:subjects,id",
+            "imagem_capa" => "nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
         ]);
 
-        if ($validator->fails()) {
+        if ($validador->fails()) {
             return redirect()->back()
-                ->withErrors($validator)
+                ->withErrors($validador)
                 ->withInput();
         }
 
         try {
             DB::beginTransaction();
 
-            $book->update([
-                'title' => $request->title,
-                'publication_year' => $request->publication_year,
-                'isbn' => $request->isbn,
-                'price' => $request->price,
+            $caminhoImagem = $livro->caminho_imagem_capa;
+            if ($request->hasFile("imagem_capa")) {
+                if ($caminhoImagem) {
+                    Storage::disk("public")->delete($caminhoImagem);
+                }
+                $caminhoImagem = $request->file("imagem_capa")->store("capas_livros", "public");
+            }
+
+            $livro->update([
+                "titulo" => $request->titulo,
+                "ano_publicacao" => $request->ano_publicacao,
+                "isbn" => $request->isbn,
+                "preco" => $request->preco,
+                "caminho_imagem_capa" => $caminhoImagem,
             ]);
 
-            $book->authors()->sync($request->authors);
-            $book->subjects()->sync($request->subjects);
+            $livro->autores()->sync($request->autores);
+            $livro->assuntos()->sync($request->assuntos);
 
             DB::commit();
 
-            return redirect()->route('books.index')
-                ->with('success', 'Livro atualizado com sucesso!');
+            return redirect()->route("books.index")
+                ->with("sucesso", "Livro atualizado com sucesso!");
         } catch (\Exception $e) {
             DB::rollBack();
-            
             return redirect()->back()
-                ->with('error', 'Erro ao atualizar livro: ' . $e->getMessage())
+                ->with("erro", "Erro ao atualizar livro: " . $e->getMessage())
                 ->withInput();
         }
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove o livro especificado do armazenamento.
      */
-    public function destroy(Book $book)
+    public function destroy(Livro $livro)
     {
         try {
-            $book->delete();
-            return redirect()->route('books.index')
-                ->with('success', 'Livro excluído com sucesso!');
+            if ($livro->caminho_imagem_capa) {
+                Storage::disk("public")->delete($livro->caminho_imagem_capa);
+            }
+            $livro->delete();
+            return redirect()->route("books.index")
+                ->with("sucesso", "Livro excluído com sucesso!");
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'Erro ao excluir livro: ' . $e->getMessage());
+                ->with("erro", "Erro ao excluir livro: " . $e->getMessage());
         }
     }
 }
+
 
