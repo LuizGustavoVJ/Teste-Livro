@@ -2,70 +2,69 @@
 
 namespace App\Services;
 
-use App\Models\Arquivo;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
 class UploadService
 {
     /**
-     * Realiza o upload do arquivo (imagem ou documento) e registra no banco.
+     * Realiza o upload de um arquivo para o disco público.
      *
-     * @param UploadedFile $file
-     * @return array
-     * @throws \Exception
+     * @param UploadedFile $arquivo
+     * @param string $pasta
+     * @return string|null O caminho do arquivo salvo ou null em caso de falha.
      */
-    public function uploadArquivo(UploadedFile $file)
+    public function uploadArquivo(UploadedFile $arquivo, string $pasta = "uploads")
     {
-        // Tamanho máximo permitido: 5MB
-        $maxSize = 5 * 1024 * 1024; // 5MB
+        try {
+            // Validação básica de tamanho e tipo de arquivo
+            $maxSize = 5 * 1024 * 1024; // 5MB
+            $allowedMimeTypes = [
+                "image/jpeg", "image/png", "image/jpg", "image/gif", "image/svg",
+            ];
 
-        if ($file->getSize() > $maxSize) {
-            Log::error('Tamanho do arquivo excedido: ' . $file->getSize());
-            Session::flash('erro_upload', 'Arquivo muito grande (máx 5MB).');
-            throw new \Exception('Tamanho do arquivo maior que o permitido.');
+            if ($arquivo->getSize() > $maxSize) {
+                Log::error("Erro de upload: Tamanho do arquivo excedido.", ["tamanho" => $arquivo->getSize()]);
+                return null;
+            }
+
+            if (!in_array($arquivo->getMimeType(), $allowedMimeTypes)) {
+                Log::error("Erro de upload: Tipo de arquivo não permitido.", ["mime_type" => $arquivo->getMimeType()]);
+                return null;
+            }
+
+            // Salva o arquivo no disco público
+            $caminho = $arquivo->store($pasta, "public");
+
+            Log::info("Upload de arquivo concluído com sucesso.", ["caminho" => $caminho]);
+            return $caminho;
+        } catch (\Exception $e) {
+            Log::error("Erro ao realizar upload de arquivo: " . $e->getMessage());
+            return null;
         }
+    }
 
-        // Tipos permitidos
-        $allowedMimeTypes = [
-            'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/svg+xml',
-            'application/pdf', 'application/vnd.ms-excel', 'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.oasis.opendocument.text',
-        ];
-
-        if (!in_array($file->getMimeType(), $allowedMimeTypes)) {
-            Log::error('Tipo de arquivo não permitido: ' . $file->getMimeType());
-            Session::flash('erro_upload', 'Tipo de arquivo não permitido.');
-            throw new \Exception('Tipo de arquivo não permitido.');
+    /**
+     * Deleta um arquivo do disco público.
+     *
+     * @param string|null $caminhoArquivo O caminho do arquivo a ser deletado.
+     * @return bool True se o arquivo foi deletado com sucesso, false caso contrário.
+     */
+    public function deletarArquivo(?string $caminhoArquivo)
+    {
+        if ($caminhoArquivo && Storage::disk("public")->exists($caminhoArquivo)) {
+            try {
+                Storage::disk("public")->delete($caminhoArquivo);
+                Log::info("Arquivo deletado com sucesso.", ["caminho" => $caminhoArquivo]);
+                return true;
+            } catch (\Exception $e) {
+                Log::error("Erro ao deletar arquivo: " . $e->getMessage(), ["caminho" => $caminhoArquivo]);
+                return false;
+            }
         }
-
-        // Pasta baseada no tipo
-        $folder = str_starts_with($file->getMimeType(), 'image/')
-            ? 'uploads/imagens'
-            : 'uploads/documentos';
-
-        // Nome seguro e único para o arquivo
-        $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $filename = preg_replace("/[^a-zA-Z0-9]/", "_", $filename);
-        $filename .= '_' . time() . '.' . $file->getClientOriginalExtension();
-
-        // Upload
-        $path = $file->storeAs($folder, $filename, 'public');
-
-        // Salva no banco de dados com os campos da nova model
-        $arquivo = Arquivo::create([
-            'nome_original' => $file->getClientOriginalName(),
-            'caminho' => $path,
-            'mime_type' => $file->getMimeType(),
-        ]);
-
-        return [
-            'id' => $arquivo->id,
-            'url' => asset('storage/' . $path),
-            'path' => $path,
-        ];
+        return false;
     }
 }
+
+
