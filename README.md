@@ -152,17 +152,6 @@ O projeto possui uma suíte de testes abrangente, incluindo testes unitários e 
     php artisan test --coverage
     ```
 
-## Estrutura da Equipe de Desenvolvimento
-
-Este projeto foi desenvolvido pela equipe "Desenvolvimento Pessoal", composta por:
-
-- **ProductManagerAI:** Responsável pela visão do produto e requisitos.
-- **Arquiteto:** Definição da arquitetura e diretrizes técnicas.
-- **Desenvolvedor FrontEnd:** Implementação da interface do usuário e experiência.
-- **Desenvolvedor BackEnd:** Desenvolvimento da lógica de negócio e APIs.
-- **Agente QA:** Garantia de qualidade e testes.
-- **Agente CI/CD:** Automação do pipeline de integração e entrega contínua.
-
 ## Padrões de Desenvolvimento
 
 Durante o desenvolvimento, foram seguidos os seguintes padrões:
