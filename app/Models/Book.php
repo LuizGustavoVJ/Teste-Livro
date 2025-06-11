@@ -22,7 +22,7 @@ class Book extends Model
         "publication_year",
         "isbn",
         "price",
-        "cover_image_path", // Adicionado o campo para o caminho da imagem
+        "cover_image_path",
     ];
 
     /**
@@ -51,6 +51,12 @@ class Book extends Model
         return $this->belongsToMany(Subject::class);
     }
 
+    // Relacionamento com Arquivo (um livro pode ter um arquivo opcional)
+    public function arquivo()
+    {
+        return $this->belongsTo(Arquivo::class, 'arquivo_id');
+    }
+
     /**
      * O método "boot" do modelo.
      *
@@ -60,10 +66,10 @@ class Book extends Model
     {
         parent::boot();
 
-        static::deleting(function ($livro) {
+        static::deleting(function ($book) {
             // Excluir a imagem de capa associada, se existir
-            if ($livro->cover_image_path) {
-                Storage::disk("public")->delete($livro->cover_image_path);
+            if ($book->cover_image_path) {
+                Storage::disk("public")->delete($book->cover_image_path);
             }
         });
     }

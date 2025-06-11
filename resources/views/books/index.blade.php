@@ -6,7 +6,7 @@
         <h1 class="page-title">
             <i class="fas fa-book me-3"></i>Gerenciar Livros
         </h1>
-        
+
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-0 pb-0">
                 <h4 class="mb-0">
@@ -31,7 +31,7 @@
                     </div>
                 @endif
 
-                @if($livros->count() > 0)
+                @if($books->count() > 0)
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -47,44 +47,44 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($livros as $livro)
+                                @foreach($books as $book)
                                     <tr>
-                                        <td class="fw-bold">{{ $livro->id }}</td>
+                                        <td class="fw-bold">{{ $book->id }}</td>
                                         <td>
-                                            @if($livro->cover_image_path)
-                                                <img src="{{ asset('storage/' . $livro->cover_image_path) }}" 
-                                                     alt="Capa do livro" 
-                                                     class="rounded" 
+                                            @if($book->arquivo)
+                                                <img src="{{ asset('storage/' . $book->arquivo) }}"
+                                                     alt="Capa do livro"
+                                                     class="rounded"
                                                      style="width: 40px; height: 50px; object-fit: cover;">
                                             @else
-                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center"
                                                      style="width: 40px; height: 50px;">
                                                     <i class="fas fa-book text-muted"></i>
                                                 </div>
                                             @endif
                                         </td>
-                                        <td class="fw-semibold">{{ $livro->title }}</td>
+                                        <td class="fw-semibold">{{ $book->title }}</td>
                                         <td>
-                                            @foreach($livro->authors as $autor)
-                                                <span class="badge bg-primary me-1">{{ $autor->name }}</span>
+                                            @foreach($book->authors as $author)
+                                                <span class="badge bg-primary me-1">{{ $author->name }}</span>
                                             @endforeach
                                         </td>
                                         <td>
-                                            @foreach($livro->subjects as $assunto)
-                                                <span class="badge bg-success me-1">{{ $assunto->description }}</span>
+                                            @foreach($book->subjects as $subject)
+                                                <span class="badge bg-success me-1">{{ $subject->description }}</span>
                                             @endforeach
                                         </td>
-                                        <td>{{ $livro->publication_year ?? 'N/A' }}</td>
-                                        <td class="fw-bold text-success">R$ {{ number_format($livro->price, 2, ',', '.') }}</td>
+                                        <td>{{ $book->publication_year ?? 'N/A' }}</td>
+                                        <td class="fw-bold text-success">R$ {{ number_format($book->price, 2, ',', '.') }}</td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <a href="{{ route('books.show', $livro) }}" class="btn btn-primary btn-sm" title="Visualizar">
+                                                <a href="{{ route('books.show', $book) }}" class="btn btn-primary btn-sm" title="Visualizar">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <a href="{{ route('books.edit', $livro) }}" class="btn btn-warning btn-sm" title="Editar">
+                                                <a href="{{ route('books.edit', $book) }}" class="btn btn-warning btn-sm" title="Editar">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <form action="{{ route('books.destroy', $livro) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este livro?')">
+                                                <form action="{{ route('books.destroy', $book) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este livro?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger btn-sm" title="Excluir">
@@ -100,7 +100,7 @@
                     </div>
 
                     <div class="d-flex justify-content-center mt-4">
-                        {{ $livros->links() }}
+                        {{ $books->links() }}
                     </div>
                 @else
                     <div class="text-center py-5">

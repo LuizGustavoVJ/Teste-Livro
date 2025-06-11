@@ -14,12 +14,16 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libmcrypt-dev \
     libgd-dev \
-    jpegoptim optipng pngquant gifsicle \
+    libsodium-dev \
+    jpegoptim \
+    optipng \
+    pngquant \
+    gifsicle \
     vim \
     nano \
     supervisor \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip fileinfo sodium
+ && docker-php-ext-configure gd --with-freetype --with-jpeg \
+ && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip fileinfo sodium
 
 # Instalar Redis extension
 RUN pecl install redis && docker-php-ext-enable redis
@@ -33,8 +37,11 @@ WORKDIR /var/www/html
 # Copiar arquivos do projeto
 COPY . /var/www/html
 
+# Instalar Telescope
+RUN composer require laravel/telescope --dev
+
 # Instalar dependências do Composer
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --optimize-autoloader
 
 # Configurar permissões
 RUN chown -R www-data:www-data /var/www/html \
@@ -44,6 +51,6 @@ RUN chown -R www-data:www-data /var/www/html \
 # Expor porta
 EXPOSE 8000
 
-# Comando padrão
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# # Comando padrão
+# CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
 
