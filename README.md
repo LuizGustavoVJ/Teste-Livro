@@ -57,7 +57,7 @@ O `Teste-Livro` é um sistema de gerenciamento de livros robusto e moderno, dese
 
 ## Como Configurar e Rodar o Projeto
 
-### 🐳 Opção 1: Usando Docker (Recomendado para Avaliação)
+### 🐳 Opção 1: Usando Docker
 
 **Esta é a forma mais rápida e fácil de testar o sistema, pois não requer configuração manual do ambiente.**
 

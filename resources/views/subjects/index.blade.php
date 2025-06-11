@@ -6,7 +6,7 @@
         <h1 class="page-title">
             <i class="fas fa-tags me-3"></i>Gerenciar Assuntos
         </h1>
-        
+
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-0 pb-0">
                 <h4 class="mb-0">
@@ -58,9 +58,9 @@
                                             </div>
                                         </td>
                                         <td>
-                                            @if($subject->books_count ?? 0 > 0)
-                                                <span class="badge bg-primary fs-6">
-                                                    <i class="fas fa-book me-1"></i>{{ $subject->books_count ?? 0 }} livro(s)
+                                            @if($subject->books->count() > 0)
+                                                <span class="badge bg-success fs-6">
+                                                    <i class="fas fa-book me-1"></i>{{ $subject->books->count() }} livro(s)
                                                 </span>
                                             @else
                                                 <span class="badge bg-secondary fs-6">

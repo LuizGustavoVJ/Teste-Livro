@@ -17,7 +17,7 @@ class ReportController extends Controller
     public function booksByAuthor()
     {
         $authors = Author::with('books.subjects')->get();
-        
+
         return view('reports.books_by_author', compact('authors'));
     }
 
@@ -29,9 +29,9 @@ class ReportController extends Controller
     public function booksByAuthorPdf()
     {
         $authors = Author::with('books.subjects')->get();
-        
+
         // Aqui seria utilizado um pacote de geração de PDF como o DomPDF
-        // Como exemplo, retornamos a view que seria convertida para PDF
+        // Como exemplo, retorna a view que seria convertida para PDF
         return view('reports.books_by_author_pdf', compact('authors'));
     }
 
@@ -46,7 +46,7 @@ class ReportController extends Controller
                   ->orderBy('author_name')
                   ->orderBy('book_title')
                   ->get();
-        
+
         return view('reports.books_by_author_from_view', compact('data'));
     }
 }

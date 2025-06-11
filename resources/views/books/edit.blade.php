@@ -6,11 +6,11 @@
         <h1 class="page-title">
             <i class="fas fa-edit me-3"></i>Editar Livro
         </h1>
-        
+
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-0 pb-0">
                 <h4 class="mb-0">
-                    <i class="fas fa-book me-2"></i>{{ $livro->title }}
+                    <i class="fas fa-book me-2"></i>{{ $book->title }}
                 </h4>
                 <a href="{{ route("books.index") }}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Voltar
@@ -36,7 +36,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route("books.update", $livro) }}" method="POST" enctype="multipart/form-data" class="fade-in-up">
+                <form action="{{ route("books.update", $book) }}" method="POST" enctype="multipart/form-data" class="fade-in-up">
                     @csrf
                     @method("PUT")
                     <div class="row">
@@ -45,8 +45,8 @@
                                 <label for="title" class="form-label fw-bold">
                                     <i class="fas fa-book me-1"></i>Título <span class="text-danger">*</span>
                                 </label>
-                                <input type="text" class="form-control @error("title") is-invalid @enderror" 
-                                       id="title" name="title" value="{{ old("title", $livro->title) }}" required
+                                <input type="text" class="form-control @error("title") is-invalid @enderror"
+                                       id="title" name="title" value="{{ old("title", $book->title) }}" required
                                        placeholder="Digite o título do livro">
                                 @error("title")
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -58,8 +58,8 @@
                                 <label for="publication_year" class="form-label fw-bold">
                                     <i class="fas fa-calendar me-1"></i>Ano de Publicação
                                 </label>
-                                <input type="number" class="form-control @error("publication_year") is-invalid @enderror" 
-                                       id="publication_year" name="publication_year" value="{{ old("publication_year", $livro->publication_year) }}" 
+                                <input type="number" class="form-control @error("publication_year") is-invalid @enderror"
+                                       id="publication_year" name="publication_year" value="{{ old("publication_year", $book->publication_year) }}"
                                        min="1000" max="{{ date("Y") }}" placeholder="Ex: {{ date("Y") }}">
                                 @error("publication_year")
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -71,8 +71,8 @@
                                 <label for="isbn" class="form-label fw-bold">
                                     <i class="fas fa-barcode me-1"></i>ISBN
                                 </label>
-                                <input type="text" class="form-control @error("isbn") is-invalid @enderror" 
-                                       id="isbn" name="isbn" value="{{ old("isbn", $livro->isbn) }}" maxlength="13"
+                                <input type="text" class="form-control @error("isbn") is-invalid @enderror"
+                                       id="isbn" name="isbn" value="{{ old("isbn", $book->isbn) }}" maxlength="13"
                                        placeholder="Ex: 9788535902778">
                                 @error("isbn")
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -87,8 +87,8 @@
                                 <label for="price" class="form-label fw-bold">
                                     <i class="fas fa-dollar-sign me-1"></i>Valor (R$) <span class="text-danger">*</span>
                                 </label>
-                                <input type="number" class="form-control @error("price") is-invalid @enderror" 
-                                       id="price" name="price" value="{{ old("price", $livro->price) }}" step="0.01" min="0" required
+                                <input type="number" class="form-control @error("price") is-invalid @enderror"
+                                       id="price" name="price" value="{{ old("price", $book->price) }}" step="0.01" min="0" required
                                        placeholder="Ex: 29.90">
                                 @error("price")
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -100,12 +100,12 @@
                                 <label for="authors" class="form-label fw-bold">
                                     <i class="fas fa-users me-1"></i>Autores <span class="text-danger">*</span>
                                 </label>
-                                <select class="form-select @error("authors") is-invalid @enderror" 
+                                <select class="form-select @error("authors") is-invalid @enderror"
                                         id="authors" name="authors[]" multiple required size="5">
-                                    @foreach($autores as $autor)
-                                        <option value="{{ $autor->id }}" 
-                                            {{ in_array($autor->id, old("authors", $livro->authors->pluck("id")->toArray())) ? "selected" : "" }}>
-                                            {{ $autor->name }}
+                                    @foreach($authors as $author)
+                                        <option value="{{ $author->id }}"
+                                            {{ in_array($author->id, old("authors", $book->authors->pluck("id")->toArray())) ? "selected" : "" }}>
+                                            {{ $author->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -122,17 +122,17 @@
                                 <label for="subjects" class="form-label fw-bold">
                                     <i class="fas fa-tags me-1"></i>Assuntos <span class="text-danger">*</span>
                                 </label>
-                                <select class="form-select @error("subjects") is-invalid @enderror" 
+                                <select class="form-select @error("subjects") is-invalid @enderror"
                                         id="subjects" name="subjects[]" multiple required size="5">
-                                    @foreach($assuntos as $assunto)
-                                        <option value="{{ $assunto->id }}" 
-                                            {{ in_array($assunto->id, old("subjects", $livro->subjects->pluck("id")->toArray())) ? "selected" : "" }}>
+                                    @foreach($subjects as $assunto)
+                                        <option value="{{ $assunto->id }}"
+                                            {{ in_array($assunto->id, old("subjects", $book->subjects->pluck("id")->toArray())) ? "selected" : "" }}>
                                             {{ $assunto->description }}
                                         </option>
                                     @endforeach
                                 </select>
                                 <div class="form-text">
-                                    <i class="fas fa-info-circle me-1"></i>Segure Ctrl (ou Cmd) para selecionar múltiplos assuntos
+                                    <i class="fas fa-info-circle me-1"></i>Segure Ctrl (ou Cmd) para selecionar múltiplos subjects
                                 </div>
                                 @error("subjects")
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -147,7 +147,7 @@
                                 <label for="cover_image" class="form-label fw-bold">
                                     <i class="fas fa-image me-1"></i>Nova Imagem de Capa
                                 </label>
-                                <input class="form-control @error("cover_image") is-invalid @enderror" 
+                                <input class="form-control @error("cover_image") is-invalid @enderror"
                                        type="file" id="cover_image" name="cover_image" accept="image/*">
                                 <div class="form-text">
                                     <i class="fas fa-info-circle me-1"></i>Formatos aceitos: JPG, PNG, GIF (máx. 5MB)
@@ -163,8 +163,8 @@
                                     <i class="fas fa-eye me-1"></i>Capa Atual
                                 </label>
                                 <div class="border rounded p-3 bg-light text-center" style="min-height: 120px;">
-                                    @if($livro->cover_image_path)
-                                        <img src="{{ asset("storage/" . $livro->cover_image_path) }}" 
+                                    @if($book->cover_image_path)
+                                        <img src="{{ asset("storage/" . $book->cover_image_path) }}"
                                              alt="Capa Atual" class="img-fluid rounded" style="max-height: 120px;">
                                         <p class="text-muted mt-2 mb-0">Capa atual do livro</p>
                                     @else
@@ -194,7 +194,7 @@
 document.getElementById('cover_image').addEventListener('change', function(e) {
     const file = e.target.files[0];
     const currentCover = document.querySelector('.col-md-6:last-child .border');
-    
+
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {

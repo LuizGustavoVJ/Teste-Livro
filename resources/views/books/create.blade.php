@@ -6,7 +6,7 @@
         <h1 class="page-title">
             <i class="fas fa-plus-circle me-3"></i>Criar Novo Livro
         </h1>
-        
+
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-0 pb-0">
                 <h4 class="mb-0">
@@ -58,7 +58,7 @@
                                     <i class="fas fa-calendar me-1"></i>Ano de Publicação
                                 </label>
                                 <input type="number" class="form-control @error("publication_year") is-invalid @enderror"
-                                       id="publication_year" name="publication_year" value="{{ old("publication_year") }}" 
+                                       id="publication_year" name="publication_year" value="{{ old("publication_year") }}"
                                        min="1000" max="{{ date("Y") }}" placeholder="Ex: {{ date("Y") }}">
                                 @error("publication_year")
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -146,7 +146,7 @@
                                 <label for="cover_image" class="form-label fw-bold">
                                     <i class="fas fa-image me-1"></i>Imagem de Capa
                                 </label>
-                                <input class="form-control @error("cover_image") is-invalid @enderror" 
+                                <input class="form-control @error("cover_image") is-invalid @enderror"
                                        type="file" id="cover_image" name="cover_image" accept="image/*">
                                 <div class="form-text">
                                     <i class="fas fa-info-circle me-1"></i>Formatos aceitos: JPG, PNG, GIF (máx. 5MB)
@@ -187,7 +187,7 @@
 document.getElementById('cover_image').addEventListener('change', function(e) {
     const file = e.target.files[0];
     const preview = document.getElementById('image-preview');
-    
+
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -206,4 +206,3 @@ document.getElementById('cover_image').addEventListener('change', function(e) {
 });
 </script>
 @endsection
-

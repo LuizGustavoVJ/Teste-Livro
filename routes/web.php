@@ -23,7 +23,7 @@ use App\Http\Controllers\SubjectWebController;
 
 Route::get('/', function () {
     return view('welcome');
-})->name('pagina-inicial');
+});
 
 
 Auth::routes();

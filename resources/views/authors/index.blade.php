@@ -6,7 +6,7 @@
         <h1 class="page-title">
             <i class="fas fa-users me-3"></i>Gerenciar Autores
         </h1>
-        
+
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-0 pb-0">
                 <h4 class="mb-0">
@@ -58,9 +58,9 @@
                                             </div>
                                         </td>
                                         <td>
-                                            @if($author->books_count ?? 0 > 0)
+                                            @if($author->books->count() > 0)
                                                 <span class="badge bg-success fs-6">
-                                                    <i class="fas fa-book me-1"></i>{{ $author->books_count ?? 0 }} livro(s)
+                                                    <i class="fas fa-book me-1"></i>{{ $author->books->count() }} livro(s)
                                                 </span>
                                             @else
                                                 <span class="badge bg-secondary fs-6">
