@@ -16,15 +16,16 @@ class UserRegistered
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $usuario;
+    public $reportData;
 
     /**
      * Cria uma nova instância do evento.
      */
-    public function __construct(User $usuario)
+    public function __construct(User $usuario, array $reportData = [])
     {
         $this->usuario = $usuario;
+        $this->reportData = $reportData;
     }
-
     /**
      * Obtém os canais nos quais o evento deve ser transmitido.
      *

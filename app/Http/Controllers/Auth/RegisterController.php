@@ -33,7 +33,9 @@ class RegisterController extends Controller
      *
      * @var string
      */
+
     protected $redirectTo = '/login';
+
 
     protected $uploadService;
 
@@ -103,7 +105,7 @@ class RegisterController extends Controller
         Log::info("Usuário criado com sucesso", ["user_id" => $user->id, "arquivo_id" => $user->arquivo_id]);
 
         // Dispara o evento UserRegistered
-        event(new UserRegistered($user));
+        event(new UserRegistered($user, ['origem' => 'registro']));
 
         return $user->load("arquivo");
     }

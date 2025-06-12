@@ -5,13 +5,10 @@ namespace Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use App\Models\Author;
 use App\Models\Book;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase as BaseTestCase;
 
 class AuthorTest extends BaseTestCase
 {
-    use RefreshDatabase;
-
     /**
      * Testa se um autor pode ser criado com sucesso.
      */
@@ -34,7 +31,7 @@ class AuthorTest extends BaseTestCase
     public function test_author_name_is_required()
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
-        
+
         Author::create([]);
     }
 
@@ -44,12 +41,12 @@ class AuthorTest extends BaseTestCase
     public function test_author_can_have_multiple_books()
     {
         $author = Author::factory()->create();
-        
+
         $book1 = Book::factory()->create();
         $book2 = Book::factory()->create();
-        
+
         $author->books()->attach([$book1->id, $book2->id]);
-        
+
         $this->assertCount(2, $author->books);
         $this->assertTrue($author->books->contains($book1));
         $this->assertTrue($author->books->contains($book2));
@@ -62,9 +59,9 @@ class AuthorTest extends BaseTestCase
     {
         $author = Author::factory()->create();
         $book = Book::factory()->create();
-        
+
         $author->books()->attach($book->id);
-        
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $author->books);
         $this->assertEquals(1, $author->books->count());
     }
@@ -75,9 +72,9 @@ class AuthorTest extends BaseTestCase
     public function test_author_can_be_updated()
     {
         $author = Author::factory()->create(['name' => 'Nome Original']);
-        
+
         $author->update(['name' => 'Nome Atualizado']);
-        
+
         $this->assertEquals('Nome Atualizado', $author->fresh()->name);
         $this->assertDatabaseHas('authors', ['id' => $author->id, 'name' => 'Nome Atualizado']);
     }
@@ -89,9 +86,9 @@ class AuthorTest extends BaseTestCase
     {
         $author = Author::factory()->create();
         $authorId = $author->id;
-        
+
         $author->delete();
-        
+
         $this->assertDatabaseMissing('authors', ['id' => $authorId]);
     }
 
@@ -101,7 +98,7 @@ class AuthorTest extends BaseTestCase
     public function test_author_has_timestamps()
     {
         $author = Author::factory()->create();
-        
+
         $this->assertNotNull($author->created_at);
         $this->assertNotNull($author->updated_at);
     }

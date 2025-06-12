@@ -43,9 +43,7 @@ class UploadService
         }
 
         // Pasta baseada no tipo
-        $folder = str_starts_with($file->getMimeType(), 'image/')
-            ? 'uploads/imagens'
-            : 'uploads/cover_image_path';
+        $folder = 'uploads/imagens';
 
         // Nome seguro e único para o arquivo
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);

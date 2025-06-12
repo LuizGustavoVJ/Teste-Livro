@@ -11,7 +11,7 @@ Nosso sistema permite que você gerencie sua biblioteca digital de forma fácil 
 
 Para começar a explorar, clique no botão abaixo:
 
-<x-mail::button :url="route("login")">
+<x-mail::button :url="route('login')">
 Acessar o Sistema
 </x-mail::button>
 
@@ -20,5 +20,3 @@ Se tiver alguma dúvida ou precisar de ajuda, não hesite em nos contatar.
 Atenciosamente,
 Equipe Sistema de Livros
 </x-mail::message>
-
-

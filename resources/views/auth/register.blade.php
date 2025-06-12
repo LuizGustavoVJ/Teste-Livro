@@ -115,7 +115,7 @@
         </div>
 
         <button type="submit" class="btn btn-register">
-            Register
+            Registrar
         </button>
 
         <div class="text-center mt-3">
