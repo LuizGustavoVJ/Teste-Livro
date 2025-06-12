@@ -15,13 +15,15 @@ class BoasVindasEmail extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public $usuario;
+    public $reportData;
 
     /**
      * Cria uma nova instância da mensagem.
      */
-    public function __construct(User $usuario)
+    public function __construct(User $usuario, array $reportData)
     {
         $this->usuario = $usuario;
+        $this->reportData = $reportData;
     }
 
     /**

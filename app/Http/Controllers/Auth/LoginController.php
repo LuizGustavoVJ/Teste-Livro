@@ -51,7 +51,7 @@ class LoginController extends Controller
         // Tentativa de login
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('/home');
+            return redirect()->intended('/login');
         }
 
         // Se falhar

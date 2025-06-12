@@ -6,14 +6,12 @@ use PHPUnit\Framework\TestCase;
 use App\Models\Book;
 use App\Models\Author;
 use App\Models\Subject;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase as BaseTestCase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 class BookTest extends BaseTestCase
 {
-    use RefreshDatabase;
 
     /**
      * Testa se um livro pode ser criado com sucesso.
@@ -43,7 +41,7 @@ class BookTest extends BaseTestCase
     public function test_titulo_e_preco_sao_obrigatorios()
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
-        
+
         Book::create([]);
     }
 
@@ -53,12 +51,12 @@ class BookTest extends BaseTestCase
     public function test_livro_pode_ter_multiplos_autores()
     {
         $livro = Book::factory()->create();
-        
+
         $autor1 = Author::factory()->create(['name' => 'Machado de Assis']);
         $autor2 = Author::factory()->create(['name' => 'José de Alencar']);
-        
+
         $livro->authors()->attach([$autor1->id, $autor2->id]);
-        
+
         $this->assertCount(2, $livro->authors);
         $this->assertTrue($livro->authors->contains($autor1));
         $this->assertTrue($livro->authors->contains($autor2));
@@ -70,12 +68,12 @@ class BookTest extends BaseTestCase
     public function test_livro_pode_ter_multiplos_assuntos()
     {
         $livro = Book::factory()->create();
-        
+
         $assunto1 = Subject::factory()->create(['description' => 'Literatura Brasileira']);
         $assunto2 = Subject::factory()->create(['description' => 'Romance']);
-        
+
         $livro->subjects()->attach([$assunto1->id, $assunto2->id]);
-        
+
         $this->assertCount(2, $livro->subjects);
         $this->assertTrue($livro->subjects->contains($assunto1));
         $this->assertTrue($livro->subjects->contains($assunto2));
@@ -88,9 +86,9 @@ class BookTest extends BaseTestCase
     {
         $livro = Book::factory()->create();
         $autor = Author::factory()->create();
-        
+
         $livro->authors()->attach($autor->id);
-        
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $livro->authors);
         $this->assertEquals(1, $livro->authors->count());
     }
@@ -102,9 +100,9 @@ class BookTest extends BaseTestCase
     {
         $livro = Book::factory()->create();
         $assunto = Subject::factory()->create();
-        
+
         $livro->subjects()->attach($assunto->id);
-        
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $livro->subjects);
         $this->assertEquals(1, $livro->subjects->count());
     }
@@ -115,9 +113,9 @@ class BookTest extends BaseTestCase
     public function test_livro_pode_ser_atualizado()
     {
         $livro = Book::factory()->create(['title' => 'Título Original', 'price' => 10.00]);
-        
+
         $livro->update(['title' => 'Título Atualizado', 'price' => 15.50]);
-        
+
         $this->assertEquals('Título Atualizado', $livro->fresh()->title);
         $this->assertEquals(15.50, $livro->fresh()->price);
         $this->assertDatabaseHas('books', ['id' => $livro->id, 'title' => 'Título Atualizado', 'price' => 15.50]);
@@ -130,9 +128,9 @@ class BookTest extends BaseTestCase
     {
         $livro = Book::factory()->create();
         $livroId = $livro->id;
-        
+
         $livro->delete();
-        
+
         $this->assertDatabaseMissing('books', ['id' => $livroId]);
     }
 
@@ -142,7 +140,7 @@ class BookTest extends BaseTestCase
     public function test_livro_possui_timestamps()
     {
         $livro = Book::factory()->create();
-        
+
         $this->assertNotNull($livro->created_at);
         $this->assertNotNull($livro->updated_at);
     }
@@ -153,7 +151,7 @@ class BookTest extends BaseTestCase
     public function test_preco_livro_deve_ser_positivo()
     {
         $livro = Book::factory()->create(['price' => 25.99]);
-        
+
         $this->assertGreaterThan(0, $livro->price);
     }
 
@@ -163,7 +161,7 @@ class BookTest extends BaseTestCase
     public function test_ano_publicacao_pode_ser_nulo()
     {
         $livro = Book::factory()->create(['publication_year' => null]);
-        
+
         $this->assertNull($livro->publication_year);
     }
 
@@ -173,7 +171,7 @@ class BookTest extends BaseTestCase
     public function test_isbn_pode_ser_nulo()
     {
         $livro = Book::factory()->create(['isbn' => null]);
-        
+
         $this->assertNull($livro->isbn);
     }
 
@@ -183,7 +181,7 @@ class BookTest extends BaseTestCase
     public function test_imagem_capa_pode_ser_definida()
     {
         $livro = Book::factory()->create(['cover_image_path' => 'capas/livro_teste.jpg']);
-        
+
         $this->assertEquals('capas/livro_teste.jpg', $livro->cover_image_path);
         $this->assertNotNull($livro->cover_image_path);
     }
@@ -194,7 +192,7 @@ class BookTest extends BaseTestCase
     public function test_imagem_capa_pode_ser_nula()
     {
         $livro = Book::factory()->create(['cover_image_path' => null]);
-        
+
         $this->assertNull($livro->cover_image_path);
     }
 
@@ -204,7 +202,7 @@ class BookTest extends BaseTestCase
     public function test_metodo_obter_url_capa_funciona()
     {
         $livro = Book::factory()->create(['cover_image_path' => 'capas/teste.jpg']);
-        
+
         $urlEsperada = asset('storage/capas/teste.jpg');
         $this->assertEquals($urlEsperada, $livro->obterUrlCapa());
     }
@@ -215,7 +213,7 @@ class BookTest extends BaseTestCase
     public function test_metodo_obter_url_capa_retorna_null_sem_imagem()
     {
         $livro = Book::factory()->create(['cover_image_path' => null]);
-        
+
         $this->assertNull($livro->obterUrlCapa());
     }
 
@@ -247,7 +245,7 @@ class BookTest extends BaseTestCase
     public function test_validacao_preco_negativo_falha()
     {
         $this->expectException(\Exception::class);
-        
+
         Book::factory()->create(['price' => -10.00]);
     }
 
@@ -257,9 +255,9 @@ class BookTest extends BaseTestCase
     public function test_ano_publicacao_futuro_invalido()
     {
         $anoFuturo = date('Y') + 1;
-        
+
         $this->expectException(\Exception::class);
-        
+
         Book::factory()->create(['publication_year' => $anoFuturo]);
     }
 }
