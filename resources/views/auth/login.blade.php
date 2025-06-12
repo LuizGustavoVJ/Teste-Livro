@@ -153,11 +153,28 @@
 
     <div class="login-container">
         <h2>Login</h2>
+        
+        <!-- Mensagem de sucesso -->
+        @if(session('success'))
+            <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <!-- Mensagens de erro -->
+        @if($errors->any())
+            <div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+                @foreach($errors->all() as $error)
+                    {{ $error }}
+                @endforeach
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('login') }}">
             @csrf
             <div class="input-group">
                 <i class="fas fa-user"></i>
-                <input type="text" name="email" placeholder="Type your e-mail" required autofocus>
+                <input type="text" name="email" placeholder="Type your e-mail" value="{{ old('email') }}" required autofocus>
             </div>
             <div class="input-group">
                 <i class="fas fa-lock"></i>
