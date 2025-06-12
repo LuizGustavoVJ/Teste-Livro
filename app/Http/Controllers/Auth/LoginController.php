@@ -54,10 +54,10 @@ class LoginController extends Controller
             return redirect()->intended('/home');
         }
 
-        // Se falhar
-        throw ValidationException::withMessages([
-            'email' => ['As credenciais fornecidas estão incorretas.'],
-        ]);
+        // Se falhar, retorna com mensagem de erro
+        return back()->withErrors([
+            'email' => 'E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.',
+        ])->withInput($request->only('email'));
     }
 
 }
