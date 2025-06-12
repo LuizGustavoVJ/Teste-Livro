@@ -9,25 +9,25 @@ O `Teste-Livro` é um sistema de gerenciamento de livros robusto e moderno, dese
 ## Funcionalidades Implementadas
 
 ### 🎨 Frontend
-- **Nova Página Inicial (Landing Page):** Uma página de entrada moderna e responsiva, com design atrativo, ilustrações e um botão de acesso ao login, substituindo a tela de login inicial.
-- **Refatoração Completa das Views:** Todas as páginas do sistema (listagem, criação, edição e visualização de livros, autores e assuntos) foram redesenhadas para seguir um padrão visual consistente, moderno e responsivo, utilizando Bootstrap 5.
-- **Interface de Upload de Imagem:** Implementação de uma interface intuitiva para upload da capa dos livros, com pré-visualização em tempo real.
-- **Melhorias na Experiência do Usuário:** Adição de gradientes, hover effects, transições suaves e ícones para uma navegação mais agradável e profissional.
-- **Seleção de Autores e Assuntos:** Refatoração dos selects para iniciarem vazios e permitirem seleção múltipla com busca, melhorando a usabilidade.
+- **Página Inicial (Landing Page):** Uma página de entrada moderna e responsiva, com design atrativo, ilustrações e um botão de acesso ao login, substituindo a tela de login inicial.
+- **Views:** Todas as páginas do sistema (listagem, criação, edição e visualização de livros, autores e assuntos) foram criadas para seguir um padrão visual consistente, moderno e responsivo, utilizando Bootstrap 5.
+- **Interface de Upload de Imagem:** Implementação de uma interface intuitiva para upload da capa dos livros e eimagem do usuário, com pré-visualização em tempo real.
+- **Experiência do Usuário:** Adição de gradientes, hover effects, transições suaves e ícones para uma navegação mais agradável e profissional.
+- **Seleção de Autores e Assuntos:** Selects para iniciarem com os dados e permitirem seleção múltipla com busca, melhorando a usabilidade.
 
 ### ⚙️ Backend
 - **Integração com Redis:** Configuração do Redis para cache de dados e como driver de fila para mensageria, otimizando o desempenho e a escalabilidade do sistema.
 - **Sistema de E-mails Automatizado:** Implementação de funcionalidades de envio de e-mails:
   - **E-mail de Boas-Vindas:** Enviado automaticamente para novos usuários cadastrados.
   - **E-mails de Relatórios:** Geração e envio de relatórios (ex: relatório de livros por autor).
-- **Upload de Imagem Modularizado:** A lógica de upload e exclusão de imagens de capa foi refatorada para utilizar a classe `UploadService`, promovendo a modularidade e reutilização de código.
-- **APIs Robustas:** Implementação e refatoração de APIs para gerenciamento de livros, autores e assuntos, seguindo as melhores práticas RESTful.
-- **Otimizações de Performance e Segurança:** Diversas melhorias internas para garantir um sistema mais rápido e seguro.
+- **Upload de Imagem Modularizado:** A lógica de upload e exclusão de imagens de capa foi feita para utilizar a classe `UploadService`, promovendo a modularidade e reutilização de código.
+- **APIs Robustas:** Implementação de APIs para gerenciamento de livros, autores e assuntos, seguindo as melhores práticas RESTful.
+- **Otimizações de Performance e Segurança:** Garante um sistema mais rápido e seguro.
 
 ### 🧪 Qualidade
-- **Testes Unitários Abrangentes:** Criação e refatoração de testes unitários para os modelos (ex: `BookTest.php`), cobrindo cenários de criação, atualização, exclusão, relacionamentos e validações.
+- **Testes Unitários Abrangentes:** Criação de testes unitários para os modelos (ex: `BookTest.php`), cobrindo cenários de criação, atualização, exclusão, relacionamentos e validações.
 - **Testes de Integração Completos:** Desenvolvimento de testes de integração para os controladores (ex: `BookControllerTest.php`, `AuthorControllerTest.php`), garantindo o funcionamento correto das rotas, validações e interações com o banco de dados, incluindo testes de upload de imagem.
-- **Desenvolvimento Orientado a Testes (TDD):** Todas as novas funcionalidades e refatorações foram guiadas pela metodologia TDD, garantindo a qualidade e a robustez do código desde o início.
+- **Desenvolvimento Orientado a Testes (TDD):** Todas as funcionalidades foram guiadas pela metodologia TDD, garantindo a qualidade e a robustez do código desde o início.
 - **Cobertura de Testes:** Foco em alta cobertura de testes para todas as funcionalidades críticas do sistema.
 
 ### 🚀 CI/CD
