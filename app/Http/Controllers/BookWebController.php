@@ -25,6 +25,7 @@ class BookWebController extends Controller
     public function index()
     {
         $books = Book::with(['authors', 'subjects'])->paginate(10);
+        $books->withPath(request()->url());
         return view('books.index', compact('books'));
     }
 
