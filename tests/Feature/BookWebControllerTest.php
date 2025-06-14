@@ -2,18 +2,18 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use App\Models\Book;
 use App\Models\Author;
 use App\Models\Subject;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class BookWebControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use DatabaseTransactions, WithFaker;
 
     protected function setUp(): void
     {
@@ -33,7 +33,7 @@ class BookWebControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('books.index');
         $response->assertViewHas('books');
-        
+
         foreach ($livros as $livro) {
             $response->assertSee($livro->title);
         }
@@ -135,7 +135,7 @@ class BookWebControllerTest extends TestCase
         $livro = Book::factory()->create();
         $autores = Author::factory()->count(2)->create();
         $assuntos = Subject::factory()->count(2)->create();
-        
+
         $livro->authors()->attach($autores);
         $livro->subjects()->attach($assuntos);
 
@@ -145,11 +145,11 @@ class BookWebControllerTest extends TestCase
         $response->assertViewIs('books.show');
         $response->assertViewHas('book');
         $response->assertSee($livro->title);
-        
+
         foreach ($autores as $autor) {
             $response->assertSee($autor->name);
         }
-        
+
         foreach ($assuntos as $assunto) {
             $response->assertSee($assunto->description);
         }
@@ -226,7 +226,7 @@ class BookWebControllerTest extends TestCase
     {
         $livro = Book::factory()->create();
         $imagemFake = UploadedFile::fake()->image('capa.jpg');
-        
+
         // Simula o upload da imagem
         $caminhoImagem = $imagemFake->store('book-covers', 'public');
         $livro->update(['cover_image_path' => $caminhoImagem]);
@@ -290,7 +290,7 @@ class BookWebControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewHas('books');
-        
+
         $livros = $response->viewData('books');
         $this->assertLessThanOrEqual(15, $livros->count());
     }

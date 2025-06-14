@@ -96,8 +96,11 @@
                         </table>
                     </div>
 
-                    <div class="d-flex justify-content-center mt-4">
-                        {{ $authors->links() }}
+                    <div class="pagination-wrapper">
+                        <div class="pagination-info">
+                            Mostrando {{ $authors->firstItem() }} a {{ $authors->lastItem() }} de {{ $authors->total() }} resultados
+                        </div>
+                        {{ $authors->links('custom-pagination') }}
                     </div>
                 @else
                     <div class="text-center py-5">

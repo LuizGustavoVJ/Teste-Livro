@@ -2,18 +2,19 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Book;
+use App\Models\User;
 use App\Models\Author;
 use App\Models\Subject;
-use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class BookControllerTest extends TestCase
 {
-    use  WithFaker;
+    use  DatabaseTransactions, WithFaker;
 
     protected $user;
 
