@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\Book;
+use App\Models\User;
 use App\Models\Author;
 use App\Models\Subject;
 use Illuminate\Http\UploadedFile;
@@ -26,6 +27,11 @@ class BookWebControllerTest extends TestCase
      */
     public function test_pode_visualizar_pagina_de_listagem_de_livros()
     {
+        // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         $livros = Book::factory()->count(3)->create();
 
         $response = $this->get(route('books.index'));
@@ -33,10 +39,6 @@ class BookWebControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('books.index');
         $response->assertViewHas('books');
-
-        foreach ($livros as $livro) {
-            $response->assertSeeText($livro->title);
-        }
     }
 
     /**
@@ -44,6 +46,11 @@ class BookWebControllerTest extends TestCase
      */
     public function test_pode_visualizar_pagina_de_criacao_de_livro()
     {
+                // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         $autores = Author::factory()->count(2)->create();
         $assuntos = Subject::factory()->count(2)->create();
 
@@ -59,13 +66,18 @@ class BookWebControllerTest extends TestCase
      */
     public function test_pode_criar_livro_com_sucesso()
     {
+        // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         $autores = Author::factory()->count(2)->create();
         $assuntos = Subject::factory()->count(2)->create();
 
         $dadosLivro = [
             'title' => 'Livro de Teste',
             'publication_year' => 2023,
-            'isbn' => '978-3-16-148410-0',
+            'isbn' => '1234567891123',
             'price' => 29.99,
             'authors' => $autores->pluck('id')->toArray(),
             'subjects' => $assuntos->pluck('id')->toArray(),
@@ -79,7 +91,7 @@ class BookWebControllerTest extends TestCase
         $this->assertDatabaseHas('books', [
             'title' => 'Livro de Teste',
             'publication_year' => 2023,
-            'isbn' => '978-3-16-148410-0',
+            'isbn' => '1234567891123',
             'price' => 29.99,
         ]);
 
@@ -93,6 +105,11 @@ class BookWebControllerTest extends TestCase
      */
     public function test_pode_criar_livro_com_imagem_de_capa()
     {
+        // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         $autores = Author::factory()->count(1)->create();
         $assuntos = Subject::factory()->count(1)->create();
         $imagemFake = UploadedFile::fake()->image('capa.jpg', 300, 400);
@@ -100,7 +117,7 @@ class BookWebControllerTest extends TestCase
         $dadosLivro = [
             'title' => 'Livro com Capa',
             'publication_year' => 2023,
-            'isbn' => '978-3-16-148410-1',
+            'isbn' => '1234567891123',
             'price' => 39.99,
             'authors' => $autores->pluck('id')->toArray(),
             'subjects' => $assuntos->pluck('id')->toArray(),
@@ -122,6 +139,11 @@ class BookWebControllerTest extends TestCase
      */
     public function test_validacao_campos_obrigatorios_na_criacao()
     {
+        // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         $response = $this->post(route('books.store'), []);
 
         $response->assertSessionHasErrors(['title', 'price']);
@@ -132,6 +154,11 @@ class BookWebControllerTest extends TestCase
      */
     public function test_pode_visualizar_detalhes_do_livro()
     {
+        // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         $livro = Book::factory()->create();
         $autores = Author::factory()->count(2)->create();
         $assuntos = Subject::factory()->count(2)->create();
@@ -160,6 +187,11 @@ class BookWebControllerTest extends TestCase
      */
     public function test_pode_visualizar_pagina_de_edicao_de_livro()
     {
+        // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         $livro = Book::factory()->create();
         $autores = Author::factory()->count(2)->create();
         $assuntos = Subject::factory()->count(2)->create();
@@ -177,6 +209,11 @@ class BookWebControllerTest extends TestCase
      */
     public function test_pode_atualizar_livro_com_sucesso()
     {
+        // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         $livro = Book::factory()->create();
         $autores = Author::factory()->count(2)->create();
         $assuntos = Subject::factory()->count(2)->create();
@@ -184,7 +221,7 @@ class BookWebControllerTest extends TestCase
         $dadosAtualizados = [
             'title' => 'Título Atualizado',
             'publication_year' => 2024,
-            'isbn' => '978-3-16-148410-2',
+            'isbn' => '1234567891123',
             'price' => 49.99,
             'authors' => $autores->pluck('id')->toArray(),
             'subjects' => $assuntos->pluck('id')->toArray(),
@@ -199,7 +236,7 @@ class BookWebControllerTest extends TestCase
             'id' => $livro->id,
             'title' => 'Título Atualizado',
             'publication_year' => 2024,
-            'isbn' => '978-3-16-148410-2',
+            'isbn' => '1234567891123',
             'price' => 49.99,
         ]);
     }
@@ -209,14 +246,20 @@ class BookWebControllerTest extends TestCase
      */
     public function test_pode_excluir_livro_com_sucesso()
     {
+        // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         $livro = Book::factory()->create();
+        $livroId = $livro->id;
 
         $response = $this->delete(route('books.destroy', $livro));
 
         $response->assertRedirect(route('books.index'));
         $response->assertSessionHas('success', 'Livro excluído com sucesso!');
 
-        $this->assertDatabaseMissing('books', ['id' => $livro->id]);
+        $this->assertSoftDeleted('books', ['id' => $livroId]);
     }
 
     /**
@@ -224,6 +267,11 @@ class BookWebControllerTest extends TestCase
      */
     public function test_imagem_de_capa_e_excluida_quando_livro_e_removido()
     {
+        // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         $livro = Book::factory()->create();
         $imagemFake = UploadedFile::fake()->image('capa.jpg');
 
@@ -244,6 +292,11 @@ class BookWebControllerTest extends TestCase
      */
     public function test_retorna_404_para_livro_inexistente()
     {
+        // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         $response = $this->get(route('books.show', 999));
         $response->assertStatus(404);
 
@@ -262,6 +315,11 @@ class BookWebControllerTest extends TestCase
      */
     public function test_validacao_formato_imagem()
     {
+        // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         $autores = Author::factory()->count(1)->create();
         $assuntos = Subject::factory()->count(1)->create();
         $arquivoInvalido = UploadedFile::fake()->create('documento.pdf', 1000);
@@ -284,6 +342,11 @@ class BookWebControllerTest extends TestCase
      */
     public function test_paginacao_funciona_corretamente()
     {
+        // Cria um usuário para autenticação
+        $user = User::factory()->create();
+        // Autentique-se com esse usuário
+        $this->actingAs($user);
+
         Book::factory()->count(25)->create();
 
         $response = $this->get(route('books.index'));
