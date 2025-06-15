@@ -73,6 +73,20 @@ class Book extends Model
             }
         });
     }
+
+    /**
+     * Obtém a URL da imagem de capa do livro.
+     *
+     * @return string|null
+     */
+    public function obterUrlCapa(): ?string
+    {
+        if ($this->cover_image_path) {
+            return asset('storage/' . $this->cover_image_path);
+        }
+
+        return null;
+    }
 }
 
 

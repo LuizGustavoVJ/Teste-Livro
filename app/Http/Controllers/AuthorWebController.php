@@ -31,7 +31,7 @@ class AuthorWebController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|min:2|max:255|unique:authors,name',
         ]);
 
         if ($validator->fails()) {
