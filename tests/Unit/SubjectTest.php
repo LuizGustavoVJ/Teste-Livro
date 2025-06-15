@@ -90,7 +90,7 @@ class SubjectTest extends BaseTestCase
 
         $subject->delete();
 
-        $this->assertDatabaseMissing('subjects', ['id' => $subjectId]);
+        $this->assertSoftDeleted('subjects', ['id' => $subjectId]);
     }
 
     /**

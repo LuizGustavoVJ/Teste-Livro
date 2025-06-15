@@ -189,7 +189,12 @@ Siga os passos abaixo para configurar e rodar o projeto em seu ambiente local:
     ```
     O sistema estará acessível em `http://127.0.0.1:8000` (ou a porta indicada).
 
-8.  **Iniciar o Worker de Fila (para e-mails e outras tarefas assíncronas):**
+8.  **Iniciar link de upload de imagens (para armazenamento no sistema):**
+    ```bash
+    php artisan storage:link
+    ```
+
+9.  **Iniciar o Worker de Fila (para e-mails e outras tarefas assíncronas):**
     ```bash
     php artisan queue:work
     ```

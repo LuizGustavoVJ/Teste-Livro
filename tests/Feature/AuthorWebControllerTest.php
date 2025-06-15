@@ -8,7 +8,7 @@ use App\Models\Author;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-class AuthorControllerTest extends TestCase
+class AuthorWebControllerTest extends TestCase
 {
     use  DatabaseTransactions, WithFaker;
 
@@ -50,7 +50,7 @@ class AuthorControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewIs('authors.create');
-        $response->assertSee('Cadastrar Novo Autor');
+        $response->assertSeeText('Cadastrar Novo Autor');
     }
 
     /**
@@ -104,7 +104,7 @@ class AuthorControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('authors.show');
         $response->assertViewHas('author');
-        $response->assertSee($autor->name);
+        $response->assertSeeText($autor->name);
     }
 
     /**
@@ -121,7 +121,7 @@ class AuthorControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('authors.edit');
         $response->assertViewHas('author');
-        $response->assertSee($autor->name);
+        $response->assertSeeText($autor->name);
     }
 
     /**
@@ -188,7 +188,7 @@ class AuthorControllerTest extends TestCase
         $response = $this->get(route('authors.index', ['search' => 'Machado']));
 
         $response->assertStatus(200);
-        $response->assertSee('Machado de Assis');
+        $response->assertSeeText('Machado de Assis');
         $response->assertDontSee('José de Alencar');
         $response->assertDontSee('Clarice Lispector');
     }
@@ -209,7 +209,7 @@ class AuthorControllerTest extends TestCase
         $response->assertViewHas('authors');
 
         $autores = $response->viewData('authors');
-        $this->assertLessThanOrEqual(15, $autores->count()); // Assumindo 15 por página
+        $this->assertLessThanOrEqual(config('pagination.authors', 10), $autores->count());
     }
 
     /**
@@ -292,7 +292,7 @@ class AuthorControllerTest extends TestCase
         $response = $this->get(route('authors.show', $autor));
 
         $response->assertStatus(200);
-        $response->assertSee('3 livro(s)');
+        $response->assertSeeText((string) $autor->books->count());
     }
 
     /**
@@ -310,7 +310,7 @@ class AuthorControllerTest extends TestCase
 
         // Deve permitir a exclusão, mas manter os livros
         $response->assertRedirect(route('authors.index'));
-        $this->assertDatabaseMissing('authors', ['id' => $autor->id]);
+        $this->assertSoftDeleted('authors', ['id' => $autor->id]);
         $this->assertDatabaseHas('books', ['id' => $livro->id]);
     }
 }

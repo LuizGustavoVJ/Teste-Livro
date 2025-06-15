@@ -89,7 +89,7 @@ class AuthorTest extends BaseTestCase
 
         $author->delete();
 
-        $this->assertDatabaseMissing('authors', ['id' => $authorId]);
+        $this->assertSoftDeleted('authors', ['id' => $authorId]);
     }
 
     /**

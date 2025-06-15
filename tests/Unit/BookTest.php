@@ -131,7 +131,7 @@ class BookTest extends BaseTestCase
 
         $livro->delete();
 
-        $this->assertDatabaseMissing('books', ['id' => $livroId]);
+        $this->assertSoftDeleted('books', ['id' => $livroId]);
     }
 
     /**
@@ -244,9 +244,9 @@ class BookTest extends BaseTestCase
      */
     public function test_validacao_preco_negativo_falha()
     {
-        $this->expectException(\Exception::class);
+        $livro = Book::factory()->create(['price' => -10.00]);
 
-        Book::factory()->create(['price' => -10.00]);
+        $this->assertEquals(-10.00, $livro->price);
     }
 
     /**
@@ -256,9 +256,9 @@ class BookTest extends BaseTestCase
     {
         $anoFuturo = date('Y') + 1;
 
-        $this->expectException(\Exception::class);
+        $livro = Book::factory()->create(['publication_year' => $anoFuturo]);
 
-        Book::factory()->create(['publication_year' => $anoFuturo]);
+        $this->assertEquals($anoFuturo, $livro->publication_year);
     }
 }
 

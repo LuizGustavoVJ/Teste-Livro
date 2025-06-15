@@ -35,7 +35,7 @@ class BookWebControllerTest extends TestCase
         $response->assertViewHas('books');
 
         foreach ($livros as $livro) {
-            $response->assertSee($livro->title);
+            $response->assertSeeText($livro->title);
         }
     }
 
@@ -144,14 +144,14 @@ class BookWebControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('books.show');
         $response->assertViewHas('book');
-        $response->assertSee($livro->title);
+        $response->assertSeeText($livro->title);
 
         foreach ($autores as $autor) {
-            $response->assertSee($autor->name);
+            $response->assertSeeText($autor->name);
         }
 
         foreach ($assuntos as $assunto) {
-            $response->assertSee($assunto->description);
+            $response->assertSeeText($assunto->description);
         }
     }
 
@@ -169,7 +169,7 @@ class BookWebControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('books.edit');
         $response->assertViewHas(['book', 'authors', 'subjects']);
-        $response->assertSee($livro->title);
+        $response->assertSeeText($livro->title);
     }
 
     /**
@@ -292,7 +292,7 @@ class BookWebControllerTest extends TestCase
         $response->assertViewHas('books');
 
         $livros = $response->viewData('books');
-        $this->assertLessThanOrEqual(15, $livros->count());
+        $this->assertLessThanOrEqual(config('pagination.books', 15), $livros->count());
     }
 }
 
