@@ -11,9 +11,16 @@ class AuthorWebController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $authors = Author::with('books')->paginate(10);
+        $search = $request->input('search');
+
+        $authors = Author::with('books')
+            ->when($search, function ($query, $search) {
+                return $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->paginate(10);
+
         return view('authors.index', compact('authors'));
     }
 
@@ -74,7 +81,7 @@ class AuthorWebController extends Controller
     public function update(Request $request, Author $author)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|min:2|max:255|unique:authors,name,' . $author->id,
         ]);
 
         if ($validator->fails()) {

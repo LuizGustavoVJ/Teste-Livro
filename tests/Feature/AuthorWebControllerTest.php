@@ -50,7 +50,7 @@ class AuthorWebControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewIs('authors.create');
-        $response->assertSeeText('Cadastrar Novo Autor');
+        $response->assertSeeText('Criar Novo Autor');
     }
 
     /**
@@ -60,8 +60,11 @@ class AuthorWebControllerTest extends TestCase
     {
         $this->actingAs($this->user);
 
+        // Gera um nome único com base no timestamp
+        $nomeUnico = 'LLLLGGGGFFFF' . uniqid();
+
         $dadosAutor = [
-            'name' => 'Machado de Assis'
+            'name' => $nomeUnico
         ];
 
         $response = $this->post(route('authors.store'), $dadosAutor);
@@ -70,7 +73,7 @@ class AuthorWebControllerTest extends TestCase
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('authors', [
-            'name' => 'Machado de Assis'
+            'name' => $nomeUnico
         ]);
     }
 
@@ -121,7 +124,7 @@ class AuthorWebControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('authors.edit');
         $response->assertViewHas('author');
-        $response->assertSeeText($autor->name);
+        $response->assertSee('value="' . e($autor->name) . '"', false);
     }
 
     /**
@@ -133,8 +136,10 @@ class AuthorWebControllerTest extends TestCase
 
         $autor = Author::factory()->create(['name' => 'Nome Original']);
 
+        $nomeNovo = 'Nome Atualizado ' . uniqid();
+
         $dadosAtualizados = [
-            'name' => 'Nome Atualizado'
+            'name' => $nomeNovo
         ];
 
         $response = $this->put(route('authors.update', $autor), $dadosAtualizados);
@@ -143,7 +148,7 @@ class AuthorWebControllerTest extends TestCase
         $response->assertSessionHas('success');
 
         $autor->refresh();
-        $this->assertEquals('Nome Atualizado', $autor->name);
+        $this->assertEquals($nomeNovo, $autor->name);
     }
 
     /**
@@ -161,7 +166,7 @@ class AuthorWebControllerTest extends TestCase
         $response->assertRedirect(route('authors.index'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseMissing('authors', ['id' => $autorId]);
+        $this->assertSoftDeleted('authors', ['id' => $autorId]);
     }
 
     /**

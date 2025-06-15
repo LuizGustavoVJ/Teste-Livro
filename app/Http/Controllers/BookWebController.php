@@ -88,14 +88,14 @@ class BookWebController extends Controller
             DB::commit();
 
             return redirect()->route("books.index")
-                ->with("sucesso", "Livro criado com sucesso!");
+                ->with("success", "Livro criado com sucesso!");
         } catch (\Exception $e) {
             DB::rollBack();
             if ($caminhoImagem) {
                 $this->servicoUpload->deletarArquivo($caminhoImagem);
             }
             return redirect()->back()
-                ->with("erro", "Erro ao criar livro: " . $e->getMessage())
+                ->with("error", "Erro ao criar livro: " . $e->getMessage())
                 ->withInput();
         }
     }
@@ -158,10 +158,10 @@ class BookWebController extends Controller
             }
 
             $book->update([
-                "title" => $request->titulo,
-                "publication_year" => $request->ano_publicacao,
+                "title" => $request->title,
+                "publication_year" => $request->publication_year,
                 "isbn" => $request->isbn,
-                "price" => $request->preco,
+                "price" => $request->price,
                 "cover_image_path" => $caminhoImagem,
             ]);
 
@@ -171,11 +171,11 @@ class BookWebController extends Controller
             DB::commit();
 
             return redirect()->route("books.index")
-                ->with("sucesso", "Livro atualizado com sucesso!");
+                ->with("success", "Livro atualizado com sucesso!");
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
-                ->with("erro", "Erro ao atualizar livro: " . $e->getMessage())
+                ->with("error", "Erro ao atualizar livro: " . $e->getMessage())
                 ->withInput();
         }
     }
@@ -191,10 +191,10 @@ class BookWebController extends Controller
             }
             $book->delete();
             return redirect()->route("books.index")
-                ->with("sucesso", "Livro excluído com sucesso!");
+                ->with("success", "Livro excluído com sucesso!");
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with("erro", "Erro ao excluir livro: " . $e->getMessage());
+                ->with("error", "Erro ao excluir livro: " . $e->getMessage());
         }
     }
 }
