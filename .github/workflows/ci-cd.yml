@@ -16,8 +16,8 @@ jobs:
   notificar_pr_criado:
     name: Notificar Novo Pull Request
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'opened'
-    
+    if: github.event_name == 'pull_request' && github.event.action == 'opened' && github.event.pull_request.head.repo.full_name == github.repository
+
     steps:
     - name: Notificar PR Criado para Aprovação
       uses: actions/github-script@v6
@@ -29,7 +29,7 @@ jobs:
           const prTitle = context.payload.pull_request.title;
           const prAuthor = context.payload.pull_request.user.login;
           const prUrl = context.payload.pull_request.html_url;
-          
+
           // Criar issue para notificação (aparece no app móvel)
           await github.rest.issues.create({
             owner,
@@ -39,7 +39,7 @@ jobs:
             labels: ['pr-review-needed', 'high-priority'],
             assignees: ['LuizGustavoVJ']
           });
-          
+
           // Comentário no PR
           await github.rest.issues.createComment({
             owner,
@@ -51,7 +51,7 @@ jobs:
   validacao_inicial:
     name: Validação Inicial do Código
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout do Código
       uses: actions/checkout@v4
@@ -86,7 +86,7 @@ jobs:
     name: Testes Unitários
     runs-on: ubuntu-latest
     needs: validacao_inicial
-    
+
     services:
       redis:
         image: redis:7.0
@@ -142,7 +142,7 @@ jobs:
     name: Testes de Integração
     runs-on: ubuntu-latest
     needs: validacao_inicial
-    
+
     services:
       redis:
         image: redis:7.0
@@ -178,7 +178,7 @@ jobs:
     name: Análise de Qualidade
     runs-on: ubuntu-latest
     needs: validacao_inicial
-    
+
     steps:
     - name: Checkout do Código
       uses: actions/checkout@v4
@@ -211,7 +211,7 @@ jobs:
     name: Testes de Segurança
     runs-on: ubuntu-latest
     needs: validacao_inicial
-    
+
     steps:
     - name: Checkout do Código
       uses: actions/checkout@v4
@@ -235,7 +235,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [testes_unitarios, testes_integracao, analise_qualidade, testes_seguranca]
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-    
+
     steps:
     - name: Checkout do Código
       uses: actions/checkout@v4
@@ -260,7 +260,7 @@ jobs:
       with:
         script: |
           const { owner, repo } = context.repo;
-          
+
           await github.rest.repos.createCommitComment({
             owner,
             repo,
@@ -272,14 +272,14 @@ jobs:
     name: Notificar PR Aprovado
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    
+
     steps:
     - name: Fechar Issues de Notificação de PR
       uses: actions/github-script@v6
       with:
         script: |
           const { owner, repo } = context.repo;
-          
+
           // Buscar issues abertas com label 'pr-review-needed'
           const issues = await github.rest.issues.listForRepo({
             owner,
@@ -287,7 +287,7 @@ jobs:
             state: 'open',
             labels: 'pr-review-needed'
           });
-          
+
           // Fechar issues relacionadas a PRs
           for (const issue of issues.data) {
             await github.rest.issues.update({
@@ -296,7 +296,7 @@ jobs:
               issue_number: issue.number,
               state: 'closed'
             });
-            
+
             await github.rest.issues.createComment({
               owner,
               repo,
@@ -310,14 +310,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [testes_unitarios, testes_integracao, analise_qualidade, testes_seguranca]
     if: success()
-    
+
     steps:
     - name: Notificar Pipeline Concluído
       uses: actions/github-script@v6
       with:
         script: |
           const { owner, repo } = context.repo;
-          
+
           await github.rest.repos.createCommitComment({
             owner,
             repo,
@@ -330,14 +330,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [testes_unitarios, testes_integracao, analise_qualidade, testes_seguranca]
     if: failure()
-    
+
     steps:
     - name: Criar Issue para Falha
       uses: actions/github-script@v6
       with:
         script: |
           const { owner, repo } = context.repo;
-          
+
           // Criar issue para notificar falha
           await github.rest.issues.create({
             owner,
@@ -347,7 +347,7 @@ jobs:
             labels: ['bug', 'ci-cd-failure', 'high-priority'],
             assignees: ['LuizGustavoVJ']
           });
-          
+
           await github.rest.repos.createCommitComment({
             owner,
             repo,
