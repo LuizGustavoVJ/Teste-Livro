@@ -1,4 +1,4 @@
-FROM php:8.1-fpm
+FROM php:8.2-fpm
 
 # Instalar dependências do sistema
 RUN apt-get update && apt-get install -y \
@@ -43,14 +43,18 @@ RUN composer require laravel/telescope --dev
 # Instalar dependências do Composer
 RUN composer install --optimize-autoloader
 
+#Instalando o Supervisor para queue:work em segundo plano
+COPY ./docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Configurar permissões
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
+# Permissões para Linux
+RUN chmod -R ug+rwx storage bootstrap/cache
+
 # Expor porta
 EXPOSE 8000
 
-# # Comando padrão
-# CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
 

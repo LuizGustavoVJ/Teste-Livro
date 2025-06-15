@@ -165,8 +165,8 @@ class BookWebController extends Controller
                 "cover_image_path" => $caminhoImagem,
             ]);
 
-            $book->authors()->sync($request->autores);
-            $book->subjects()->sync($request->assuntos);
+            $book->authors()->sync($request->authors);
+            $book->subjects()->sync($request->subjects);
 
             DB::commit();
 

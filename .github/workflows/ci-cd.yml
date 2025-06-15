@@ -40,14 +40,6 @@ jobs:
             assignees: ['LuizGustavoVJ']
           });
 
-          // Comentário no PR
-          await github.rest.issues.createComment({
-            owner,
-            repo,
-            issue_number: prNumber,
-            body: `🔔 **Notificação enviada para @LuizGustavoVJ**\n\nUma issue foi criada para notificar sobre este PR no aplicativo móvel do GitHub.`
-          });
-
   validacao_inicial:
     name: Validação Inicial do Código
     runs-on: ubuntu-latest

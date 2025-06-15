@@ -14,7 +14,7 @@ services:
       - APP_NAME=Teste-Livro
       - APP_ENV=local
       - APP_DEBUG=true
-      - APP_URL=http://localhost:8000
+      - APP_URL=http://127.0.0.1:8085
       - DB_CONNECTION=mysql
       - DB_HOST=mysql
       - DB_PORT=3306
@@ -44,19 +44,8 @@ services:
         condition: service_started
     networks:
       - teste-livro-network
-    command: >
-      sh -c "
-        composer install --no-dev --optimize-autoloader &&
-        php artisan key:generate --force &&
-        php artisan config:cache &&
-        php artisan route:cache &&
-        php artisan view:cache &&
-        php artisan migrate --force &&
-        php artisan db:seed --force &&
-        php artisan storage:link &&
-        php artisan queue:work --daemon &
-        php artisan serve --host=0.0.0.0 --port=8000
-      "
+    entrypoint: ./docker/app/entrypoint.sh
+    command: php-fpm
 
   # Servidor Web Nginx
   nginx:
@@ -64,7 +53,7 @@ services:
     container_name: teste-livro-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8085:80"
     volumes:
       - ./:/var/www/html
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf

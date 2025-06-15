@@ -132,7 +132,7 @@
                                     @endforeach
                                 </select>
                                 <div class="form-text">
-                                    <i class="fas fa-info-circle me-1"></i>Segure Ctrl (ou Cmd) para selecionar múltiplos subjects
+                                    <i class="fas fa-info-circle me-1"></i>Segure Ctrl (ou Cmd) para selecionar múltiplos assuntos
                                 </div>
                                 @error("subjects")
                                     <div class="invalid-feedback">{{ $message }}</div>
