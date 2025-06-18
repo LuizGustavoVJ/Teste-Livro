@@ -8,6 +8,11 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 env:
   PHP_VERSION: '8.2'
   NODE_VERSION: '18'
@@ -346,4 +351,3 @@ jobs:
             commit_sha: context.sha,
             body: `❌ **PIPELINE CI/CD FALHOU**\n\nUma issue foi criada para rastrear esta falha. Verifique os logs para mais detalhes.\n\n**Run ID:** ${context.runId}`
           });
-
