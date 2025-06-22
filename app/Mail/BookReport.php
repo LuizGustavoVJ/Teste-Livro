@@ -11,7 +11,8 @@ use Illuminate\Queue\SerializesModels;
 
 class BookReport extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * O assunto do e-mail.
@@ -31,7 +32,7 @@ class BookReport extends Mailable implements ShouldQueue
      * Create a new message instance.
      *
      * @param string $subject
-     * @param array $reportData
+     * @param array  $reportData
      */
     public function __construct(string $subject, array $reportData)
     {
@@ -72,4 +73,3 @@ class BookReport extends Mailable implements ShouldQueue
         return [];
     }
 }
-

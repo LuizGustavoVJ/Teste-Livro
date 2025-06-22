@@ -13,7 +13,9 @@ use App\Models\User;
 
 class UserRegistered
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public $usuario;
     public $reportData;
@@ -38,5 +40,3 @@ class UserRegistered
         ];
     }
 }
-
-

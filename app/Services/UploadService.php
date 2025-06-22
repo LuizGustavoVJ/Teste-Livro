@@ -13,7 +13,7 @@ class UploadService
     /**
      * Realiza o upload do arquivo (imagem ou documento) e registra no banco.
      *
-     * @param UploadedFile $file
+     * @param  UploadedFile $file
      * @return array
      * @throws \Exception
      */
@@ -54,11 +54,13 @@ class UploadService
         $path = $file->storeAs($folder, $filename, 'public');
 
         // Salva no banco de dados com os campos da nova model
-        $arquivo = Arquivo::create([
+        $arquivo = Arquivo::create(
+            [
             'nome_original' => $file->getClientOriginalName(),
             'caminho' => $path,
             'mime_type' => $file->getMimeType(),
-        ]);
+            ]
+        );
 
         return [
             'id' => $arquivo->id,
@@ -70,7 +72,7 @@ class UploadService
     /**
      * Deleta um arquivo do disco público.
      *
-     * @param string|null $caminhoArquivo O caminho do arquivo a ser deletado.
+     * @param  string|null $caminhoArquivo O caminho do arquivo a ser deletado.
      * @return bool True se o arquivo foi deletado com sucesso, false caso contrário.
      */
     public function deletarArquivo(?string $caminhoArquivo)
@@ -88,5 +90,3 @@ class UploadService
         return false;
     }
 }
-
-

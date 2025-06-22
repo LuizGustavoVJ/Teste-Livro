@@ -28,5 +28,3 @@ class SendWelcomeEmail implements ShouldQueue
         Mail::to($evento->usuario->email)->send(new BoasVindasEmail($evento->usuario, $evento->reportData));
     }
 }
-
-

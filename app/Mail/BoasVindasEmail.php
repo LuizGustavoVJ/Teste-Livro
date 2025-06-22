@@ -12,7 +12,8 @@ use App\Models\User;
 
 class BoasVindasEmail extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public $usuario;
     public $reportData;
@@ -59,5 +60,3 @@ class BoasVindasEmail extends Mailable implements ShouldQueue
         return [];
     }
 }
-
-

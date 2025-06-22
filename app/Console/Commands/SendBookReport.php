@@ -52,5 +52,3 @@ class SendBookReport extends Command
         $this->info("Relatório de livros enviado com sucesso para " . $emailDestinatario);
     }
 }
-
-

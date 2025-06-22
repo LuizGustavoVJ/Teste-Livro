@@ -30,9 +30,12 @@ class SubjectWebController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make(
+            $request->all(),
+            [
             'description' => 'required|string|max:255',
-        ]);
+            ]
+        );
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -73,9 +76,12 @@ class SubjectWebController extends Controller
      */
     public function update(Request $request, Subject $subject)
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make(
+            $request->all(),
+            [
             'description' => 'required|string|max:255',
-        ]);
+            ]
+        );
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -109,4 +115,3 @@ class SubjectWebController extends Controller
         }
     }
 }
-

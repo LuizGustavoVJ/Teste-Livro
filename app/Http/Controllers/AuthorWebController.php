@@ -16,9 +16,12 @@ class AuthorWebController extends Controller
         $search = $request->input('search');
 
         $authors = Author::with('books')
-            ->when($search, function ($query, $search) {
-                return $query->where('name', 'like', '%' . $search . '%');
-            })
+            ->when(
+                $search,
+                function ($query, $search) {
+                    return $query->where('name', 'like', '%' . $search . '%');
+                }
+            )
             ->paginate(10);
 
         return view('authors.index', compact('authors'));
@@ -37,9 +40,12 @@ class AuthorWebController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make(
+            $request->all(),
+            [
             'name' => 'required|string|min:2|max:255|unique:authors,name',
-        ]);
+            ]
+        );
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -80,9 +86,12 @@ class AuthorWebController extends Controller
      */
     public function update(Request $request, Author $author)
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make(
+            $request->all(),
+            [
             'name' => 'required|string|min:2|max:255|unique:authors,name,' . $author->id,
-        ]);
+            ]
+        );
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -116,4 +125,3 @@ class AuthorWebController extends Controller
         }
     }
 }
-

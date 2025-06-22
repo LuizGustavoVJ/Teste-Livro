@@ -25,7 +25,6 @@ class RegisterController extends Controller
     | provide this functionality without requiring any additional code.
     |
     */
-
     use RegistersUsers;
 
     /**
@@ -53,23 +52,26 @@ class RegisterController extends Controller
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
+     * @param  array $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
+        return Validator::make(
+            $data,
+            [
             "name" => ["required", "string", "max:255"],
             "email" => ["required", "string", "email", "max:255", "unique:users"],
             "password" => ["required", "string", "min:8", "confirmed"],
             "imagem" => ["nullable", "image", "mimes:jpeg,png,jpg,gif,bmp", "max:5120"], // 5MB
-        ]);
+            ]
+        );
     }
 
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
+     * @param  array $data
      * @return \App\Models\User
      */
     protected function create(array $data)
@@ -79,11 +81,14 @@ class RegisterController extends Controller
         $upload = null;
 
         if (request()->hasFile("imagem")) {
-            Log::info("Arquivo de imagem recebido", [
+            Log::info(
+                "Arquivo de imagem recebido",
+                [
                 "mime_type" => request()->file("imagem")->getMimeType(),
                 "size" => request()->file("imagem")->getSize(),
                 "original_name" => request()->file("imagem")->getClientOriginalName(),
-            ]);
+                ]
+            );
 
             try {
                 $upload = $this->uploadService->uploadArquivo(request()->file("imagem"));
@@ -95,12 +100,14 @@ class RegisterController extends Controller
             Log::warning("Nenhum arquivo de imagem enviado na requisição.");
         }
 
-        $user = User::create([
+        $user = User::create(
+            [
             "name" => $data["name"],
             "email" => $data["email"],
             "password" => Hash::make($data["password"]),
             "arquivo_id" => $upload["id"] ?? null,
-        ]);
+            ]
+        );
 
         Log::info("Usuário criado com sucesso", ["user_id" => $user->id, "arquivo_id" => $user->arquivo_id]);
 
@@ -113,7 +120,7 @@ class RegisterController extends Controller
     /**
      * Handle a registration request for the application.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function register(\Illuminate\Http\Request $request)
@@ -129,4 +136,3 @@ class RegisterController extends Controller
         return redirect('/login')->with('success', 'Usuário cadastrado com sucesso! Faça login para acessar o sistema.');
     }
 }
-

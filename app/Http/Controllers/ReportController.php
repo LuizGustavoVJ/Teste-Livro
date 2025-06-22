@@ -43,11 +43,10 @@ class ReportController extends Controller
     public function booksByAuthorFromView()
     {
         $data = DB::table('books_by_author_view')
-                  ->orderBy('author_name')
-                  ->orderBy('book_title')
-                  ->get();
+            ->orderBy('author_name')
+            ->orderBy('book_title')
+            ->get();
 
         return view('reports.books_by_author_from_view', compact('data'));
     }
 }
-

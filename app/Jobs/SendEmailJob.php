@@ -12,7 +12,10 @@ use App\Mail\BookReport;
 
 class SendEmailJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * O e-mail do destinatário.
@@ -40,7 +43,7 @@ class SendEmailJob implements ShouldQueue
      *
      * @param string $email
      * @param string $subject
-     * @param array $reportData
+     * @param array  $reportData
      */
     public function __construct(string $email, string $subject, array $reportData)
     {
@@ -58,4 +61,3 @@ class SendEmailJob implements ShouldQueue
             ->send(new BookReport($this->subject, $this->reportData));
     }
 }
-

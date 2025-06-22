@@ -22,11 +22,14 @@ class VerifyCsrfToken extends Middleware
         try {
             return parent::handle($request, $next);
         } catch (\Illuminate\Session\TokenMismatchException $e) {
-            Log::warning('CSRF error', [
+            Log::warning(
+                'CSRF error',
+                [
                 'session_token' => $request->session()->token(),
                 'input_token' => $request->input('_token'),
                 'cookie_token' => $request->cookie('XSRF-TOKEN'),
-            ]);
+                ]
+            );
             throw $e;
         }
     }

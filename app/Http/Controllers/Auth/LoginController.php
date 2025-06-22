@@ -20,7 +20,6 @@ class LoginController extends Controller
     | to conveniently provide its functionality to your applications.
     |
     */
-
     use AuthenticatesUsers;
 
     /**
@@ -43,10 +42,12 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         // Validação dos campos
-        $credentials = $request->validate([
+        $credentials = $request->validate(
+            [
             'email' => ['required', 'email'],
             'password' => ['required'],
-        ]);
+            ]
+        );
 
         // Tentativa de login
         if (Auth::attempt($credentials)) {
@@ -55,9 +56,10 @@ class LoginController extends Controller
         }
 
         // Se falhar, retorna com mensagem de erro
-        return back()->withErrors([
+        return back()->withErrors(
+            [
             'email' => 'E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.',
-        ])->withInput($request->only('email'));
+            ]
+        )->withInput($request->only('email'));
     }
-
 }

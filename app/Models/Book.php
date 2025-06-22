@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Storage;
 
 class Book extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     /**
      * Os atributos que podem ser atribuídos em massa.
@@ -66,12 +67,14 @@ class Book extends Model
     {
         parent::boot();
 
-        static::deleting(function ($book) {
-            // Excluir a imagem de capa associada, se existir
-            if ($book->cover_image_path) {
-                Storage::disk("public")->delete($book->cover_image_path);
+        static::deleting(
+            function ($book) {
+                // Excluir a imagem de capa associada, se existir
+                if ($book->cover_image_path) {
+                    Storage::disk("public")->delete($book->cover_image_path);
+                }
             }
-        });
+        );
     }
 
     /**
@@ -88,5 +91,3 @@ class Book extends Model
         return null;
     }
 }
-
-

@@ -12,48 +12,60 @@ class EmailController extends Controller
     /**
      * Envia o relatório de livros por autor por e-mail.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function sendBookReport(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make(
+            $request->all(),
+            [
             'email' => 'required|email',
             'subject' => 'string|max:255',
-        ]);
+            ]
+        );
 
         if ($validator->fails()) {
-            return response()->json([
+            return response()->json(
+                [
                 'success' => false,
                 'message' => 'Erro de validação',
                 'errors' => $validator->errors()
-            ], 422);
+                ],
+                422
+            );
         }
 
         try {
             // Buscar dados do relatório
             $authors = Author::with('books.subjects')->get();
-            
+
             // Preparar dados para o e-mail
             $reportData = [
-                'authors' => $authors->map(function ($author) {
-                    return [
+                'authors' => $authors->map(
+                    function ($author) {
+                        return [
                         'name' => $author->name,
-                        'books' => $author->books->map(function ($book) {
-                            return [
+                        'books' => $author->books->map(
+                            function ($book) {
+                                return [
                                 'title' => $book->title,
                                 'publication_year' => $book->publication_year,
                                 'isbn' => $book->isbn,
                                 'price' => $book->price,
-                                'subjects' => $book->subjects->map(function ($subject) {
-                                    return [
+                                'subjects' => $book->subjects->map(
+                                    function ($subject) {
+                                        return [
                                         'description' => $subject->description
-                                    ];
-                                })->toArray()
-                            ];
-                        })->toArray()
-                    ];
-                })->toArray()
+                                        ];
+                                    }
+                                )->toArray()
+                                ];
+                            }
+                        )->toArray()
+                        ];
+                    }
+                )->toArray()
             ];
 
             $subject = $request->input('subject', 'Relatório de Livros por Autor');
@@ -61,17 +73,21 @@ class EmailController extends Controller
             // Despachar o job para a fila
             SendEmailJob::dispatch($request->email, $subject, $reportData);
 
-            return response()->json([
+            return response()->json(
+                [
                 'success' => true,
                 'message' => 'E-mail adicionado à fila de envio com sucesso'
-            ]);
-
+                ]
+            );
         } catch (\Exception $e) {
-            return response()->json([
+            return response()->json(
+                [
                 'success' => false,
                 'message' => 'Erro ao processar solicitação de e-mail',
                 'error' => $e->getMessage()
-            ], 500);
+                ],
+                500
+            );
         }
     }
 
@@ -85,4 +101,3 @@ class EmailController extends Controller
         return view('emails.send_form');
     }
 }
-

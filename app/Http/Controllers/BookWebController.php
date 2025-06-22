@@ -44,7 +44,9 @@ class BookWebController extends Controller
      */
     public function store(Request $request)
     {
-        $validador = Validator::make($request->all(), [
+        $validador = Validator::make(
+            $request->all(),
+            [
             'title' => 'required|string|max:255',
             'publication_year' => 'nullable|integer',
             'isbn' => 'nullable|string|max:13',
@@ -54,7 +56,8 @@ class BookWebController extends Controller
             'subjects' => 'required|array|min:1',
             'subjects.*' => 'exists:subjects,id',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-        ]);
+            ]
+        );
 
         if ($validador->fails()) {
             return redirect()->back()
@@ -74,13 +77,15 @@ class BookWebController extends Controller
                 }
             }
 
-            $book = Book::create([
+            $book = Book::create(
+                [
                 "title" => $request->title,
                 "publication_year" => $request->publication_year,
                 "isbn" => $request->isbn,
                 "price" => $request->price,
                 "cover_image_path" => $caminhoImagem,
-            ]);
+                ]
+            );
 
             $book->authors()->attach($request->authors);
             $book->subjects()->attach($request->subjects);
@@ -125,7 +130,9 @@ class BookWebController extends Controller
      */
     public function update(Request $request, Book $book)
     {
-        $validador = Validator::make($request->all(), [
+        $validador = Validator::make(
+            $request->all(),
+            [
             'title' => 'required|string|max:255',
             'publication_year' => 'nullable|integer',
             'isbn' => 'nullable|string|max:13',
@@ -135,7 +142,8 @@ class BookWebController extends Controller
             'subjects' => 'required|array|min:1',
             'subjects.*' => 'exists:subjects,id',
             "cover_image" => "nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
-        ]);
+            ]
+        );
 
         if ($validador->fails()) {
             return redirect()->back()
@@ -157,13 +165,15 @@ class BookWebController extends Controller
                 }
             }
 
-            $book->update([
+            $book->update(
+                [
                 "title" => $request->title,
                 "publication_year" => $request->publication_year,
                 "isbn" => $request->isbn,
                 "price" => $request->price,
                 "cover_image_path" => $caminhoImagem,
-            ]);
+                ]
+            );
 
             $book->authors()->sync($request->authors);
             $book->subjects()->sync($request->subjects);
@@ -198,5 +208,3 @@ class BookWebController extends Controller
         }
     }
 }
-
-
