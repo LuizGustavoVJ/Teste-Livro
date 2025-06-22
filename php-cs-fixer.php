@@ -4,7 +4,7 @@ use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 
 $finder = Finder::create()
-    ->in(__DIR__ . '/app'); // Altere para o diretório do seu código, ex: /src
+    ->in(__DIR__ );
 
 return (new Config())
     ->setRules([

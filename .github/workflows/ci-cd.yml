@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
   issues: write
+  contents: write
   pull-requests: write
 
 env:
@@ -125,6 +125,7 @@ jobs:
 
     - name: Executar Testes Unitários
       run: |
+        php artisan migrate --force
         php artisan test --testsuite=Unit --coverage-text --coverage-clover=coverage.xml
 
     - name: Upload da Cobertura de Código
@@ -169,7 +170,9 @@ jobs:
         php artisan db:seed --force
 
     - name: Executar Testes de Integração
-      run: php artisan test --testsuite=Feature
+      run: |
+        php artisan migrate --force
+        php artisan test --testsuite=Feature
 
   analise_qualidade:
     name: Análise de Qualidade
@@ -196,7 +199,7 @@ jobs:
         composer require --dev squizlabs/php_codesniffer
 
     - name: Executar PHP CS Fixer
-      run: ./vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
+      run: ./vendor/bin/php-cs-fixer fix --config=php-cs-fixer.php --dry-run --diff --verbose
 
     - name: Executar PHP CodeSniffer
       run: ./vendor/bin/phpcs --standard=PSR12 app/
