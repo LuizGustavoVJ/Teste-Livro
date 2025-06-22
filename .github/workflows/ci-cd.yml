@@ -119,13 +119,16 @@ jobs:
       run: |
         cp .env.example .env
         sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
-        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=:memory:/' .env
+        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=database/testing.sqlite/' .env
+        mkdir -p database
+        touch database/testing.sqlite
         php artisan key:generate
+        php artisan migrate --force
+        php artisan db:seed --force
         php artisan config:cache
 
     - name: Executar Testes Unitários
       run: |
-        php artisan migrate --force
         php artisan test --testsuite=Unit --coverage-text --coverage-clover=coverage.xml
 
     - name: Upload da Cobertura de Código
@@ -164,14 +167,16 @@ jobs:
       run: |
         cp .env.example .env
         sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
-        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=:memory:/' .env
+        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=database/testing.sqlite/' .env
+        mkdir -p database
+        touch database/testing.sqlite
         php artisan key:generate
         php artisan migrate --force
         php artisan db:seed --force
+        php artisan config:cache
 
     - name: Executar Testes de Integração
       run: |
-        php artisan migrate --force
         php artisan test --testsuite=Feature
 
   analise_qualidade:
@@ -199,7 +204,7 @@ jobs:
         composer require --dev squizlabs/php_codesniffer
 
     - name: Executar PHP CS Fixer
-      run: ./vendor/bin/php-cs-fixer fix --config=php-cs-fixer.php --dry-run --diff --verbose
+      run: ./vendor/bin/php-cs-fixer fix --config=php-cs-fixer.php
 
     - name: Executar PHP CodeSniffer
       run: ./vendor/bin/phpcs --standard=PSR12 app/
