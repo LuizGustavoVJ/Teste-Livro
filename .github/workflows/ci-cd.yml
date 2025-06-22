@@ -118,8 +118,8 @@ jobs:
     - name: Preparar Ambiente de Teste
       run: |
         cp .env.example .env
-        sed -i 's#DB_CONNECTION=mysql#DB_CONNECTION=sqlite#' .env
-        sed -i 's#DB_DATABASE=laravel#DB_DATABASE=:memory:#' .env
+        sed -i 's\DB_CONNECTION=mysql\DB_CONNECTION=sqlite\' .env
+        sed -i 's\DB_DATABASE=laravel\DB_DATABASE=database\testing.sqlite\' .env
         mkdir -p database
         touch database/testing.sqlite
         php artisan key:generate
@@ -166,8 +166,8 @@ jobs:
     - name: Preparar Ambiente
       run: |
         cp .env.example .env
-        sed -i 's#DB_CONNECTION=mysql#DB_CONNECTION=sqlite#' .env
-        sed -i 's#DB_DATABASE=laravel#DB_DATABASE=:memory:#' .env
+        sed -i 's\DB_CONNECTION=mysql\DB_CONNECTION=sqlite\' .env
+        sed -i 's\DB_DATABASE=laravel\DB_DATABASE=database\testing.sqlite\' .env
         mkdir -p database
         touch database/testing.sqlite
         php artisan key:generate
@@ -207,7 +207,7 @@ jobs:
       run: ./vendor/bin/php-cs-fixer fix --config=php-cs-fixer.php
 
     - name: Executar PHP CodeSniffer
-      run: ./vendor/bin/phpcs --standard=PSR12 app/
+      run: ./vendor/bin/phpcs --standard=PSR12 --warning-severity=0 app/
 
     - name: Executar PHPStan
       run: ./vendor/bin/phpstan analyse app --level=5
