@@ -250,7 +250,6 @@ O projeto possui uma suíte de testes abrangente, incluindo testes unitários e 
 Durante o desenvolvimento, foram seguidos os seguintes padrões:
 
 - **TDD (Test-Driven Development):** Todas as funcionalidades foram desenvolvidas com testes primeiro.
-- **Localização:** Todos os métodos, variáveis e descritivos no código estão em Português (exceto nomes de tabelas e padrões de framework).
 - **Estrutura Monolítica:** O projeto mantém uma estrutura monolítica, utilizando HTML e Bootstrap para o frontend.
 - **Git Flow:** Utilização de um fluxo de trabalho Git baseado em branches de feature, bugfix, hotfix e release.
 
