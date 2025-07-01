@@ -100,5 +100,4 @@ class EmailController extends Controller
     {
         return view('emails.send_form');
     }
-
 }

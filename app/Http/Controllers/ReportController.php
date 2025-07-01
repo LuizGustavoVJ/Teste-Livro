@@ -43,6 +43,5 @@ class ReportController extends Controller
     public function booksByAuthorFromView()
     {
         return redirect()->away('http://NOTEDELLLG:80/ReportServer?/Relatorio_Autores');
-
     }
 }
