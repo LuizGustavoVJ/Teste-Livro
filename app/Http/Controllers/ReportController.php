@@ -24,7 +24,7 @@ class ReportController extends Controller
     /**
      * Gera um PDF do relatório de livros por autor.
      *
-     * @return \Illuminate\View\View
+     * @return \Illuminate\Http\Response
      */
     public function booksByAuthorPdf()
     {
@@ -38,7 +38,7 @@ class ReportController extends Controller
     /**
      * Obtém os dados do relatório de livros por autor da view do banco de dados via Report Builder.
      *
-     * @return \Illuminate\View\View
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function booksByAuthorFromView()
     {
