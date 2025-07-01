@@ -52,15 +52,15 @@
                                 @enderror
                             </div>
                         </div>
-                        <div class="col-md-3">
+                       <div class="col-md-3">
                             <div class="mb-4">
                                 <label for="publication_year" class="form-label fw-bold">
                                     <i class="fas fa-calendar me-1"></i>Ano de Publicação
                                 </label>
-                                <input type="number" class="form-control @error("publication_year") is-invalid @enderror"
-                                       id="publication_year" name="publication_year" value="{{ old("publication_year") }}"
-                                       min="1000" max="{{ date("Y") }}" placeholder="Ex: {{ date("Y") }}">
-                                @error("publication_year")
+                                <input type="text" class="form-control @error('publication_year') is-invalid @enderror"
+                                    id="publication_year" name="publication_year" value="{{ old('publication_year') }}"
+                                    placeholder="Selecione o ano" autocomplete="off">
+                                @error('publication_year')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -87,7 +87,7 @@
                                     <i class="fas fa-dollar-sign me-1"></i>Valor (R$) <span class="text-danger">*</span>
                                 </label>
                                 <input type="number" class="form-control @error("price") is-invalid @enderror"
-                                       id="price" name="price" value="{{ old("price") }}" step="0.01" min="0" required
+                                       id="price" name="price" value="{{ old("price") }}" step="0.10" min="0" required
                                        placeholder="Ex: 29.90">
                                 @error("price")
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -184,6 +184,15 @@
 </div>
 
 <script>
+ $('#publication_year').datepicker({
+        format: "yyyy",
+        viewMode: "years",
+        minViewMode: "years",
+        autoclose: true,
+        language: "pt-BR",
+        endDate: new Date()
+    });
+
 document.getElementById('cover_image').addEventListener('change', function(e) {
     const file = e.target.files[0];
     const preview = document.getElementById('image-preview');

@@ -94,10 +94,11 @@ class EmailController extends Controller
     /**
      * Exibe o formulário para envio de e-mail.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function showEmailForm()
     {
         return view('emails.send_form');
     }
+
 }

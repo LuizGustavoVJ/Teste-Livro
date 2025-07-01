@@ -4,9 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -22,14 +19,21 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Bootstrap Datepicker CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/css/bootstrap-datepicker.min.css" rel="stylesheet">
+
+    <!-- jQuery (necessário) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap Datepicker JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.10.0/dist/locales/bootstrap-datepicker.pt-BR.min.js"></script>
+
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <!-- Custom Scripts -->
     <script src="{{ asset('js/app-custom.js') }}" defer></script>
-
-    <!-- Bootstrap JS -->
-    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script> --}}
 
     <!-- CSS Customizado para Paginação -->
     <link href="{{ asset('css/pagination.css') }}" rel="stylesheet">
@@ -81,6 +85,31 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
+        .col-acoes {
+            width: 1%;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .btn-group > * > .btn,
+        .btn-group > .btn {
+            border-radius: 0 !important; /* remove o arredondamento de todos inicialmente */
+        }
+
+        /* Primeiro botão da esquerda */
+        .btn-group > a:first-child,
+        .btn-group > form:first-child button {
+            border-top-left-radius: 25px !important;
+            border-bottom-left-radius: 25px !important;
+        }
+
+        /* Último botão da direita */
+        .btn-group > a:last-child,
+        .btn-group > form:last-child button {
+            border-top-right-radius: 25px !important;
+            border-bottom-right-radius: 25px !important;
+        }
+
         .btn-primary {
             background: linear-gradient(45deg, #667eea, #764ba2);
             border: none;
@@ -129,7 +158,7 @@
             border-radius: 25px;
             padding: 0.75rem 2rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: 0.3s ease;
         }
 
         .btn-danger:hover {
@@ -257,7 +286,7 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-dark shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
+                <a class="navbar-brand" href="{{ url('/home') }}">
                     <i class="fas fa-book me-2"></i>{{ config('app.name', 'Sistema de Livros') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
