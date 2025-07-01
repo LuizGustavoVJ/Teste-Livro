@@ -36,7 +36,6 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th><i class="fas fa-hashtag me-1"></i>ID</th>
                                     <th><i class="fas fa-tag me-1"></i>Descrição</th>
                                     <th><i class="fas fa-book me-1"></i>Livros Relacionados</th>
                                     <th><i class="fas fa-calendar me-1"></i>Data de Criação</th>
@@ -46,7 +45,6 @@
                             <tbody>
                                 @foreach($subjects as $subject)
                                     <tr>
-                                        <td class="fw-bold">{{ $subject->id }}</td>
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="subject-icon me-3">
@@ -73,7 +71,7 @@
                                                 <i class="fas fa-clock me-1"></i>{{ $subject->created_at->format('d/m/Y H:i') }}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td class="col-acoes">
                                             <div class="btn-group" role="group">
                                                 <a href="{{ route('subjects.show', $subject) }}" class="btn btn-primary btn-sm" title="Visualizar">
                                                     <i class="fas fa-eye"></i>

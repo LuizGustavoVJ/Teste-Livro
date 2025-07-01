@@ -5,10 +5,18 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header">
-                    <h2>Relatório de Livros por Autor</h2>
-                </div>
+                <h1 class="page-title mb-4">
+                    <i class="fas fa-book me-2"></i>Relatório de Livros por Autor
+                </h1>
                 <div class="card-body">
+                    <div class="mb-3 d-flex justify-content-end gap-2">
+                        <a href="{{ route('reports.books-by-author.pdf') }}" class="btn btn-warning" target="_blank">
+                            <i class="fas fa-file-pdf me-1"></i> Exportar PDF
+                        </a>
+                        <button onclick="window.print()" class="btn btn-primary">
+                            <i class="fas fa-print me-1"></i> Imprimir
+                        </button>
+                    </div>
                     @foreach($authors as $author)
                         <h3>{{ $author->name }}</h3>
                         <table class="table table-striped">

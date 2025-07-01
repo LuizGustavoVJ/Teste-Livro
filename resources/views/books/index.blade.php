@@ -36,7 +36,6 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th><i class="fas fa-hashtag me-1"></i>ID</th>
                                     <th><i class="fas fa-image me-1"></i>Capa</th>
                                     <th><i class="fas fa-book me-1"></i>Título</th>
                                     <th><i class="fas fa-users me-1"></i>Autores</th>
@@ -49,16 +48,17 @@
                             <tbody>
                                 @foreach($books as $book)
                                     <tr>
-                                        <td class="fw-bold">{{ $book->id }}</td>
                                         <td>
-                                            @if($book->arquivo)
-                                                <img src="{{ asset('storage/' . $book->arquivo) }}"
-                                                     alt="Capa do livro"
-                                                     class="rounded"
-                                                     style="width: 40px; height: 50px; object-fit: cover;">
+                                            @if($book->cover_image_path)
+                                                <a href="{{ asset('storage/' . $book->cover_image_path) }}" target="_blank">
+                                                    <img src="{{ asset('storage/' . $book->cover_image_path) }}"
+                                                        alt="Capa do livro"
+                                                        class="rounded"
+                                                        style="width: 40px; height: 50px; object-fit: cover;">
+                                                </a>
                                             @else
                                                 <div class="bg-light rounded d-flex align-items-center justify-content-center"
-                                                     style="width: 40px; height: 50px;">
+                                                    style="width: 40px; height: 50px;">
                                                     <i class="fas fa-book text-muted"></i>
                                                 </div>
                                             @endif
@@ -76,7 +76,7 @@
                                         </td>
                                         <td>{{ $book->publication_year ?? 'N/A' }}</td>
                                         <td class="fw-bold text-success">R$ {{ number_format($book->price, 2, ',', '.') }}</td>
-                                        <td>
+                                        <td class="col-acoes">
                                             <div class="btn-group" role="group">
                                                 <a href="{{ route('books.show', $book) }}" class="btn btn-primary btn-sm" title="Visualizar">
                                                     <i class="fas fa-eye"></i>
@@ -84,7 +84,7 @@
                                                 <a href="{{ route('books.edit', $book) }}" class="btn btn-warning btn-sm" title="Editar">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <form action="{{ route('books.destroy', $book) }}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este livro?')">
+                                                <form action="{{ route('books.destroy', $book) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este livro?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger btn-sm" title="Excluir">

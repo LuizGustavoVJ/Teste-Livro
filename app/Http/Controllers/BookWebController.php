@@ -65,10 +65,10 @@ class BookWebController extends Controller
                 ->withInput();
         }
 
+        $caminhoImagem = null;
         try {
             DB::beginTransaction();
 
-            $caminhoImagem = null;
             if ($request->hasFile("cover_image")) {
                 $upload = $this->servicoUpload->uploadArquivo($request->file("cover_image"));
                 $caminhoImagem = $upload['path'];
@@ -79,16 +79,16 @@ class BookWebController extends Controller
 
             $book = Book::create(
                 [
-                "title" => $request->title,
-                "publication_year" => $request->publication_year,
-                "isbn" => $request->isbn,
-                "price" => $request->price,
+                "title" => $request->input('title'),
+                "publication_year" => $request->input('publication_year'),
+                "isbn" => $request->input('isbn'),
+                "price" => $request->input('price'),
                 "cover_image_path" => $caminhoImagem,
                 ]
             );
 
-            $book->authors()->attach($request->authors);
-            $book->subjects()->attach($request->subjects);
+            $book->authors()->attach($request->input('authors'));
+            $book->subjects()->attach($request->input('subjects'));
 
             DB::commit();
 
@@ -151,15 +151,16 @@ class BookWebController extends Controller
                 ->withInput();
         }
 
+        $caminhoImagem = $book->cover_image_path;
         try {
             DB::beginTransaction();
 
-            $caminhoImagem = $book->cover_image_path;
             if ($request->hasFile("cover_image")) {
                 if ($caminhoImagem) {
                     $this->servicoUpload->deletarArquivo($caminhoImagem);
                 }
                 $caminhoImagem = $this->servicoUpload->uploadArquivo($request->file("cover_image"), "capas_livros");
+                $caminhoImagem = $caminhoImagem['path'];
                 if (!$caminhoImagem) {
                     throw new \Exception("Falha ao fazer upload da nova imagem de capa.");
                 }
@@ -167,16 +168,16 @@ class BookWebController extends Controller
 
             $book->update(
                 [
-                "title" => $request->title,
-                "publication_year" => $request->publication_year,
-                "isbn" => $request->isbn,
-                "price" => $request->price,
+                "title" => $request->input('title'),
+                "publication_year" => $request->input('publication_year'),
+                "isbn" => $request->input('isbn'),
+                "price" => $request->input('price'),
                 "cover_image_path" => $caminhoImagem,
                 ]
             );
 
-            $book->authors()->sync($request->authors);
-            $book->subjects()->sync($request->subjects);
+            $book->authors()->sync($request->input('authors'));
+            $book->subjects()->sync($request->input('subjects'));
 
             DB::commit();
 

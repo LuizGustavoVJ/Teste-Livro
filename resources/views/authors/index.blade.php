@@ -36,17 +36,15 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th><i class="fas fa-hashtag me-1"></i>ID</th>
                                     <th><i class="fas fa-user me-1"></i>Nome</th>
                                     <th><i class="fas fa-book me-1"></i>Livros Publicados</th>
                                     <th><i class="fas fa-calendar me-1"></i>Data de Criação</th>
-                                    <th><i class="fas fa-cogs me-1"></i>Ações</th>
+                                    <th class="col-acoes"><i class="fas fa-cogs me-1"></i>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($authors as $author)
                                     <tr>
-                                        <td class="fw-bold">{{ $author->id }}</td>
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="author-avatar me-3">
@@ -73,7 +71,7 @@
                                                 <i class="fas fa-clock me-1"></i>{{ $author->created_at->format('d/m/Y H:i') }}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td class="col-acoes">
                                             <div class="btn-group" role="group">
                                                 <a href="{{ route('authors.show', $author) }}" class="btn btn-primary btn-sm" title="Visualizar">
                                                     <i class="fas fa-eye"></i>

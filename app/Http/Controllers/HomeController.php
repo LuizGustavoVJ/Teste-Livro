@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,6 +24,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('index');
+        $books = Book::with(['authors', 'subjects'])->paginate(10);
+        $books->withPath(request()->url());
+        return view('index', compact('books'));
     }
 }
