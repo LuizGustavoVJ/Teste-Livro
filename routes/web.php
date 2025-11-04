@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\EmailController;
+
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\BookWebController;
 use App\Http\Controllers\AuthorWebController;
@@ -44,8 +44,5 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/books-by-author/pdf', [ReportController::class, 'booksByAuthorPdf'])->name('reports.books-by-author.pdf');
         Route::get('/books-by-author/from-view', [ReportController::class, 'booksByAuthorFromView'])->name('reports.books-by-author.from-view');
     });
-
-    // Rotas para e-mail
-    Route::get('/send-email', [EmailController::class, 'showEmailForm'])->name('email.form');
 });
 
