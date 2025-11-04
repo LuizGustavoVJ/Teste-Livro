@@ -25,6 +25,7 @@
                                     <th>Título</th>
                                     <th>Ano de Publicação</th>
                                     <th>ISBN</th>
+                                    <th>Preço (R$)</th>
                                     <th>Valor (R$)</th>
                                     <th>Assuntos</th>
                                 </tr>
@@ -35,12 +36,9 @@
                                         <td>{{ $book->title }}</td>
                                         <td>{{ $book->publication_year }}</td>
                                         <td>{{ $book->isbn }}</td>
-                                        <td>{{ number_format($book->price, 2, ',', '.') }}</td>
-                                        <td>
-                                            @foreach($book->subjects as $subject)
-                                                {{ $subject->description }}@if(!$loop->last), @endif
-                                            @endforeach
-                                        </td>
+                                        <td>{{ $book->price ? 'R$ ' . number_format($book->price, 2, ',', '.') : '-' }}</td>
+                                        <td>{{ $book->valor ? 'R$ ' . number_format($book->valor, 2, ',', '.') : '-' }}</td>
+                                        <td>{{ $book->subjects ?: '-' }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
