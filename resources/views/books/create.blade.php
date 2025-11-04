@@ -81,20 +81,33 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="mb-4">
                                 <label for="price" class="form-label fw-bold">
-                                    <i class="fas fa-dollar-sign me-1"></i>Valor (R$) <span class="text-danger">*</span>
+                                    <i class="fas fa-dollar-sign me-1"></i>Preço (R$)
                                 </label>
                                 <input type="number" class="form-control @error("price") is-invalid @enderror"
-                                       id="price" name="price" value="{{ old("price") }}" step="0.10" min="0" required
+                                       id="price" name="price" value="{{ old("price") }}" step="0.01" min="0"
                                        placeholder="Ex: 29.90">
                                 @error("price")
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <div class="mb-4">
+                                <label for="valor" class="form-label fw-bold">
+                                    <i class="fas fa-tag me-1"></i>Valor (R$) <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" class="form-control @error("valor") is-invalid @enderror"
+                                       id="valor" name="valor" value="{{ old("valor") }}" step="0.01" min="0" required
+                                       placeholder="Ex: 29.90">
+                                @error("valor")
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <div class="mb-4">
                                 <label for="authors" class="form-label fw-bold">
                                     <i class="fas fa-users me-1"></i>Autores <span class="text-danger">*</span>
@@ -116,7 +129,7 @@
                                 @enderror
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="mb-4">
                                 <label for="subjects" class="form-label fw-bold">
                                     <i class="fas fa-tags me-1"></i>Assuntos <span class="text-danger">*</span>

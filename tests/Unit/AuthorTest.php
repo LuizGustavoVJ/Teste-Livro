@@ -2,13 +2,15 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 use App\Models\Author;
 use App\Models\Book;
 use Tests\TestCase as BaseTestCase;
 
-class AuthorTest extends BaseTestCase
+class AuthorTest extends TestCase
 {
+    use RefreshDatabase;
     /**
      * Testa se um autor pode ser criado com sucesso.
      */

@@ -89,4 +89,65 @@ class UploadService
         }
         return false;
     }
+
+    /**
+     * Faz upload de uma imagem de capa para livros.
+     *
+     * @param UploadedFile $file
+     * @param string $directory
+     * @return string|null
+     */
+    public function uploadCoverImage(UploadedFile $file, string $directory = 'covers'): ?string
+    {
+        try {
+            // Validação básica
+            if (!$file->isValid()) {
+                throw new \Exception('Arquivo inválido.');
+            }
+
+            // Tamanho máximo: 2MB para imagens de capa
+            $maxSize = 2 * 1024 * 1024; // 2MB
+            if ($file->getSize() > $maxSize) {
+                throw new \Exception('Imagem muito grande (máx 2MB).');
+            }
+
+            // Tipos permitidos para imagens
+            $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+            if (!in_array($file->getMimeType(), $allowedMimeTypes)) {
+                throw new \Exception('Tipo de imagem não permitido.');
+            }
+
+            // Nome seguro e único para o arquivo
+            $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $filename = preg_replace("/[^a-zA-Z0-9]/", "_", $filename);
+            $filename .= '_' . time() . '.' . $file->getClientOriginalExtension();
+
+            // Upload
+            $path = $file->storeAs($directory, $filename, 'public');
+            
+            return $path;
+        } catch (\Exception $e) {
+            Log::error('Erro no upload da imagem de capa: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Atualiza uma imagem de capa, removendo a antiga e fazendo upload da nova.
+     *
+     * @param UploadedFile $newFile
+     * @param string|null $oldPath
+     * @param string $directory
+     * @return string|null
+     */
+    public function updateCoverImage(UploadedFile $newFile, ?string $oldPath, string $directory = 'covers'): ?string
+    {
+        // Remove a imagem antiga se existir
+        if ($oldPath) {
+            $this->deletarArquivo($oldPath);
+        }
+
+        // Faz upload da nova imagem
+        return $this->uploadCoverImage($newFile, $directory);
+    }
 }
