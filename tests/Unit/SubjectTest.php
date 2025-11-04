@@ -2,13 +2,15 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 use App\Models\Subject;
 use App\Models\Book;
-use Tests\TestCase as BaseTestCase;
 
-class SubjectTest extends BaseTestCase
+
+class SubjectTest extends TestCase
 {
+    use RefreshDatabase;
 
     /**
      * Testa se um assunto pode ser criado com sucesso.

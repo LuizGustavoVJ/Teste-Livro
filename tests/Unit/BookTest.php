@@ -2,7 +2,8 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 use App\Models\Book;
 use App\Models\Author;
 use App\Models\Subject;
@@ -10,8 +11,9 @@ use Tests\TestCase as BaseTestCase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
-class BookTest extends BaseTestCase
+class BookTest extends TestCase
 {
+    use RefreshDatabase;
 
     /**
      * Testa se um livro pode ser criado com sucesso.

@@ -313,9 +313,9 @@
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdownReports">
                                     <li><a class="dropdown-item" href="{{ route('reports.books-by-author') }}"><i class="fas fa-file-alt me-2"></i> Livros por Autor</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('reports.books-by-author.from-view') }}"><i class="fas fa-table me-2"></i> Livros por Autor (View)</a></li>
+
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ route('email.form') }}"><i class="fas fa-envelope me-2"></i> Enviar por E-mail</a></li>
+
                                 </ul>
                             </li>
                         @endauth

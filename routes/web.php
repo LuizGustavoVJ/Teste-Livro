@@ -39,13 +39,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('books', BookWebController::class);
 
     // Rotas para relatórios
-    Route::prefix('reports')->group(function () {
-        Route::get('/books-by-author', [ReportController::class, 'booksByAuthor'])->name('reports.books-by-author');
-        Route::get('/books-by-author/pdf', [ReportController::class, 'booksByAuthorPdf'])->name('reports.books-by-author.pdf');
-        Route::get('/books-by-author/from-view', [ReportController::class, 'booksByAuthorFromView'])->name('reports.books-by-author.from-view');
+    Route::prefix("reports")->group(function () {
+        Route::get("/books-by-author", [ReportController::class, "booksByAuthor"])->name("reports.books-by-author");
+        Route::get("/books-by-author/pdf", [ReportController::class, "booksByAuthorPdf"])->name("reports.books-by-author.pdf");
     });
-
-    // Rotas para e-mail
-    Route::get('/send-email', [EmailController::class, 'showEmailForm'])->name('email.form');
 });
 
