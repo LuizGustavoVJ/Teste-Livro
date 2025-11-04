@@ -1,76 +1,62 @@
 # Sistema de Gerenciamento de Livros
 
-## Sobre o Projeto
+Este é um sistema de gerenciamento de livros desenvolvido em Laravel, que permite o cadastro, a visualização, a edição e a exclusão de livros, autores e assuntos.
 
-O `Teste-Livro` é um sistema de gerenciamento de livros robusto e moderno, desenvolvido com Laravel. Ele permite o cadastro, edição, visualização e exclusão de livros, autores e assuntos.
+## Requisitos
 
-## Como Configurar e Rodar o Projeto com Docker
-
-**Esta é a forma mais rápida e fácil de testar o sistema, pois não requer configuração manual do ambiente.**
-
-### Pré-requisitos
+- PHP >= 8.1
+- Composer
 - Docker
 - Docker Compose
 
-### Passos para Inicialização
+## Instalação e Execução
 
-1.  **Clonar o Repositório:**
-    ```bash
-    git clone https://github.com/LuizGustavoVJ/Teste-Livro.git
-    cd Teste-Livro
-    ```
+1. **Clone o repositório:**
 
-2.  **Iniciar o Ambiente Docker:**
-    ```bash
-    docker-compose up --build -d
-    ```
+   ```bash
+   git clone https://github.com/LuizGustavoVJ/Teste-Livro.git
+   cd Teste-Livro
+   ```
 
-3.  **Acessar o Sistema:**
-    - **Aplicação:** http://localhost:8085
-    - **Interface de E-mails (Mailhog):** http://localhost:8025
-    - **PHPMyAdmin:** http://localhost:8080
+2. **Copie o arquivo de ambiente para o Docker:**
 
-### Serviços Incluídos no Docker
+   ```bash
+   cp .env.docker .env
+   ```
 
-- **Aplicação Laravel**
-- **MySQL 8.0**
-- **Redis**
-- **Mailhog**
-- **PHPMyAdmin**
-- **Queue Worker**
-- **Nginx**
+3. **Suba os contêineres do Docker:**
 
-### Comandos Úteis Docker
+   ```bash
+   docker-compose up -d --build
+   ```
 
-```bash
-# Parar o ambiente
-docker-compose down
+4. **Instale as dependências do Composer:**
 
-# Ver logs em tempo real
-docker-compose logs -f
+   ```bash
+   docker-compose exec app composer install
+   ```
 
-# Reiniciar serviços
-docker-compose restart
+5. **Gere a chave da aplicação:**
 
-# Executar comandos Laravel
-docker-compose exec app php artisan [comando]
+   ```bash
+   docker-compose exec app php artisan key:generate
+   ```
 
-# Acessar o container da aplicação
-docker-compose exec app bash
-```
+6. **Execute as migrações do banco de dados:**
 
-## Como Testar o Projeto
+   ```bash
+   docker-compose exec app php artisan migrate
+   ```
 
-### Testando com Docker
+7. **Acesse a aplicação:**
 
-Se você está usando o ambiente Docker, os testes podem ser executados dentro do container:
+   A aplicação estará disponível em [http://localhost:8085](http://localhost:8085).
+
+## Executando os Testes
+
+Para executar a suíte de testes, rode o seguinte comando:
 
 ```bash
-# Executar todos os testes
 docker-compose exec app php artisan test
 ```
-
-## Licença
-
-O Laravel framework é um software de código aberto licenciado sob a [Licença MIT](https://opensource.org/licenses/MIT).
 
