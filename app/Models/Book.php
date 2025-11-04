@@ -23,6 +23,7 @@ class Book extends Model
         "publication_year",
         "isbn",
         "price",
+        "valor",
         "cover_image_path",
     ];
 
@@ -34,6 +35,7 @@ class Book extends Model
     protected $casts = [
         "publication_year" => "integer",
         "price" => "decimal:2",
+        "valor" => "decimal:2",
     ];
 
     /**
