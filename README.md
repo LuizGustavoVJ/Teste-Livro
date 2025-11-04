@@ -86,4 +86,3 @@ Para executar a suíte de testes, utilize o comando:
 ```bash
 php artisan test
 ```
-

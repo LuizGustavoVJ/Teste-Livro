@@ -6,11 +6,11 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Author;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class AuthorWebControllerTest extends TestCase
 {
-    use  DatabaseTransactions, WithFaker;
+    use RefreshDatabase, WithFaker;
 
     protected $user;
 
