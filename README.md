@@ -2,42 +2,17 @@
 
 ## Sobre o Projeto
 
-Este projeto é um sistema de gerenciamento de livros desenvolvido em Laravel, como parte de um teste técnico para a vaga de Especialista PHP. O sistema permite o cadastro, edição, visualização e exclusão de livros, autores e assuntos.
+O `Teste-Livro` é um sistema de gerenciamento de livros robusto e moderno, desenvolvido com Laravel. Ele permite o cadastro, edição, visualização e exclusão de livros, autores e assuntos.
 
-## Requisitos Atendidos
+## Como Configurar e Rodar o Projeto com Docker
 
-O projeto foi desenvolvido para atender 100% dos requisitos obrigatórios do teste, com foco na qualidade do código, boas práticas de mercado e aderência à documentação oficial do Laravel e PHP.
-
-### Funcionalidades
-
-- **CRUD Completo:** Implementação do CRUD para Livros, Autores e Assuntos.
-- **Campo de Valor:** Adição do campo `valor` (R$) para os livros.
-- **Relatório:** Geração de um relatório de livros por autor, consumindo uma `VIEW` do banco de dados.
-- **Interface Simples e Funcional:** Utilização de Bootstrap para uma interface limpa e responsiva.
-
-### Qualidade e Boas Práticas
-
-- **TDD (Test-Driven Development):** O desenvolvimento foi guiado por testes, com uma suíte completa de testes unitários e de feature.
-- **Tratamento de Erros:** Implementação de tratamento de exceções específico para erros de banco de dados e outras situações.
-- **Código Limpo e Organizado:** Utilização de Form Requests para validação, Services para lógica de negócio e outras práticas para manter o código limpo e de fácil manutenção.
-
-## Tecnologias Utilizadas
-
-- **Laravel 10.x**
-- **PHP 8.1+**
-- **SQLite** (para desenvolvimento e testes)
-- **Bootstrap 5**
-- **PHPUnit**
-
-## Como Configurar e Rodar o Projeto
+**Esta é a forma mais rápida e fácil de testar o sistema, pois não requer configuração manual do ambiente.**
 
 ### Pré-requisitos
+- Docker
+- Docker Compose
 
-- PHP 8.1+
-- Composer
-- Node.js e NPM/Yarn
-
-### Passos para Instalação
+### Passos para Inicialização
 
 1.  **Clonar o Repositório:**
     ```bash
@@ -45,44 +20,57 @@ O projeto foi desenvolvido para atender 100% dos requisitos obrigatórios do tes
     cd Teste-Livro
     ```
 
-2.  **Instalar Dependências:**
+2.  **Iniciar o Ambiente Docker:**
     ```bash
-    composer install
-    npm install
-    npm run dev
+    docker-compose up --build -d
     ```
 
-3.  **Configurar o Ambiente:**
-    ```bash
-    cp .env.example .env
-    php artisan key:generate
-    ```
+3.  **Acessar o Sistema:**
+    - **Aplicação:** http://localhost:8085
+    - **Interface de E-mails (Mailhog):** http://localhost:8025
+    - **PHPMyAdmin:** http://localhost:8080
 
-4.  **Configurar o Banco de Dados (SQLite):**
-    Crie o arquivo de banco de dados:
-    ```bash
-    touch database/database.sqlite
-    ```
-    No arquivo `.env`, certifique-se de que a conexão de banco de dados esteja configurada para SQLite:
-    ```dotenv
-    DB_CONNECTION=sqlite
-    ```
+### Serviços Incluídos no Docker
 
-5.  **Executar as Migrações:**
-    ```bash
-    php artisan migrate
-    ```
+- **Aplicação Laravel**
+- **MySQL 8.0**
+- **Redis**
+- **Mailhog**
+- **PHPMyAdmin**
+- **Queue Worker**
+- **Nginx**
 
-6.  **Iniciar o Servidor:**
-    ```bash
-    php artisan serve
-    ```
-    O sistema estará acessível em `http://127.0.0.1:8000`.
+### Comandos Úteis Docker
+
+```bash
+# Parar o ambiente
+docker-compose down
+
+# Ver logs em tempo real
+docker-compose logs -f
+
+# Reiniciar serviços
+docker-compose restart
+
+# Executar comandos Laravel
+docker-compose exec app php artisan [comando]
+
+# Acessar o container da aplicação
+docker-compose exec app bash
+```
 
 ## Como Testar o Projeto
 
-Para executar a suíte de testes, utilize o comando:
+### Testando com Docker
+
+Se você está usando o ambiente Docker, os testes podem ser executados dentro do container:
 
 ```bash
-php artisan test
+# Executar todos os testes
+docker-compose exec app php artisan test
 ```
+
+## Licença
+
+O Laravel framework é um software de código aberto licenciado sob a [Licença MIT](https://opensource.org/licenses/MIT).
+
