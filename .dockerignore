@@ -1,0 +1,7 @@
+/public/storage
+/storage/logs
+/vendor
+/node_modules
+.env
+.git
+tests

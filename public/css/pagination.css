@@ -1,0 +1,96 @@
+/* Estilos customizados para paginação */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    gap: 5px;
+}
+
+.pagination .page-item {
+    margin: 0 2px;
+}
+
+.pagination .page-link {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    color: #6c757d;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+    color: #495057;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Remover setas grandes e customizar navegação */
+.pagination .page-link svg,
+.pagination .page-link i {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+}
+
+/* Estilo para os links Previous/Next */
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    font-size: 12px;
+    padding: 8px 10px;
+}
+
+/* Ocultar elementos duplicados de paginação */
+.pagination-wrapper {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.pagination-wrapper .pagination {
+    display: inline-flex;
+    margin: 0;
+}
+
+/* Informações de resultados */
+.pagination-info {
+    text-align: center;
+    margin: 10px 0;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* Responsividade */
+@media (max-width: 576px) {
+    .pagination .page-link {
+        padding: 6px 8px;
+        font-size: 12px;
+        min-width: 32px;
+        height: 32px;
+    }
+    
+    .pagination .page-item {
+        margin: 0 1px;
+    }
+}
+
