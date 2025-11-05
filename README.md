@@ -31,18 +31,6 @@ O `Teste-Livro` é um sistema de gerenciamento de livros robusto e moderno, dese
 - **Desenvolvimento Orientado a Testes (TDD):** Todas as funcionalidades foram guiadas pela metodologia TDD, garantindo a qualidade e a robustez do código desde o início.
 - **Cobertura de Testes:** **151 testes com 1.187+ assertions**, alcançando **85-90%+ de cobertura** para todos os componentes principais do sistema.
 
-### 🚀 CI/CD
-- **Pipeline CI/CD Completo:** Configuração de um workflow automatizado no GitHub Actions (`.github/workflows/ci-cd.yml`) que inclui:
-  - **Validação Inicial do Código:** Verificação de sintaxe PHP e configuração do ambiente Laravel.
-  - **Execução de Testes:** Rodada automática de testes unitários e de integração.
-  - **Análise de Qualidade de Código:** Utilização de ferramentas como PHP CS Fixer, PHP CodeSniffer e PHPStan para garantir a conformidade com padrões de código e identificar possíveis problemas.
-  - **Testes de Segurança:** Verificação de vulnerabilidades nas dependências e rotas.
-  - **Deploy para Staging:** Deploy automático para um ambiente de staging após a aprovação e merge na branch `master`.
-- **Notificações Inteligentes:** Configuração de notificações para o aplicativo móvel do GitHub:
-  - **Notificação de PR Criado:** Criação automática de issues e comentários no PR para avisar sobre a necessidade de revisão.
-  - **Notificação de PR Aprovado:** Fechamento automático das issues de notificação quando o PR é mergeado.
-  - **Notificação de Sucesso/Falha do Pipeline:** Alertas em tempo real sobre o status das execuções do CI/CD.
-
 ## Tecnologias Utilizadas
 
 - **Laravel 10.x:** Framework PHP para o backend.
@@ -50,7 +38,6 @@ O `Teste-Livro` é um sistema de gerenciamento de livros robusto e moderno, dese
 - **MySQL/SQLite:** Banco de dados (SQLite para desenvolvimento/testes).
 - **Bootstrap 5:** Framework CSS para o frontend.
 - **Redis:** Para cache e filas de mensageria.
-- **GitHub Actions:** Para o pipeline de CI/CD.
 - **Composer:** Gerenciador de dependências PHP.
 - **NPM/Yarn:** Gerenciador de pacotes JavaScript.
 - **PHPUnit:** Framework de testes para PHP.
